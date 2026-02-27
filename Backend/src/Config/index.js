@@ -8,6 +8,8 @@ const cors = require('cors');
 const equipoRoutes = require('../Routes/equiposRoutes');
 const canchaRoutes = require('../Routes/canchaRoutes');
 const canalRoutes = require('../Routes/canalRoutes');
+const jugadoresRoutes = require('./Routes/jugadoresRoutes');
+const arbitroRoutes = require('./Routes/arbitroRoutes');
 
 // 🟢 CAMBIO 1: Elimina el app.use(cors()) duplicado y deja solo este:
 app.use(cors({
@@ -20,9 +22,10 @@ app.use('/api/usuarios', usuarioRoutes);
 app.use('/api/equipos', equipoRoutes);
 app.use('/api/canchas', canchaRoutes);
 app.use('/api/canales', canalRoutes);
+app.use('/api/jugadores', jugadoresRoutes);
+app.use('/api/arbitros', arbitroRoutes);
 
-// 🟢 CAMBIO 2: MEJORA LA VERIFICACIÓN DE CONEXIÓN
-// En lugar de solo connect(), haz una consulta real
+
 pool.query('SELECT NOW()', (err, res) => {
     if (err) {
         console.error('❌ Error al conectar a la base de datos:', err.message);
