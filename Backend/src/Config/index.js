@@ -8,8 +8,8 @@ const cors = require('cors');
 const equipoRoutes = require('../Routes/equiposRoutes');
 const canchaRoutes = require('../Routes/canchaRoutes');
 const canalRoutes = require('../Routes/canalRoutes');
-const jugadoresRoutes = require('./Routes/jugadoresRoutes');
-const arbitroRoutes = require('./Routes/arbitroRoutes');
+const jugadoresRoutes = require('../Routes/jugadoresRoutes');
+const arbitroRoutes = require('../Routes/arbitroRoutes');
 
 // 🟢 CAMBIO 1: Elimina el app.use(cors()) duplicado y deja solo este:
 app.use(cors({
