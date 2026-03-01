@@ -56,9 +56,9 @@ const login = async (correo, contrasena) => {
 
     const usuario = resultado.rows[0];
 
-    const contrasenaValida = await bcrypt.compare(contrasena, usuario.contrasena);
-
-    if (!contrasenaValida) {
+    // 🔴 CAMBIO AQUÍ: Comparación directa (texto plano)
+    // Antes usaba bcrypt.compare, ahora compara directamente
+    if (contrasena !== usuario.contrasena) {
         const error = new Error('Correo o contraseña incorrectos');
         error.status = 401;
         throw error;
