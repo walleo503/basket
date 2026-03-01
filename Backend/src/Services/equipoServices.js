@@ -1,28 +1,42 @@
 const pool = require('../Config/db');
+
 const obtenerTodos = async () => {
-    
     const query = `
         SELECT e.id_equipo, e.nombre_oficial, e.siglas, cl.descripcion AS clasificacion, 
             c.nombre_cancha, c.direccion AS direccion_cancha, e.id_entrenador, e.activo
         FROM equipos e
         LEFT JOIN clasificacion_equipo cl ON e.id_clasificacion = cl.id_clasificacion
         LEFT JOIN canchas c ON e.id_cancha = c.id_cancha
-        WHERE e.activo = true
         ORDER BY e.nombre_oficial ASC;
     `;
     const { rows } = await pool.query(query);
     return rows;
 };
 
+const obtenerPorId = async (id_equipo) => {
+    const query = `
+        SELECT e.*, cl.descripcion AS clasificacion, 
+            c.nombre_cancha, c.direccion AS direccion_cancha,
+            u.nombre || ' ' || u.apellido AS entrenador_nombre
+        FROM equipos e
+        LEFT JOIN clasificacion_equipo cl ON e.id_clasificacion = cl.id_clasificacion
+        LEFT JOIN canchas c ON e.id_cancha = c.id_cancha
+        LEFT JOIN usuarios u ON e.id_entrenador = u.id_usuario
+        WHERE e.id_equipo = $1;
+    `;
+    const { rows } = await pool.query(query, [id_equipo]);
+    return rows[0];
+};
+
 const obtenerPorEntrenador = async (id_entrenador) => {
     const query = `
         SELECT e.*, cl.descripcion AS clasificacion, 
             c.nombre_cancha, c.direccion AS direccion_cancha 
-            FROM equipos e
-            LEFT JOIN clasificacion_equipo cl ON e.id_clasificacion = cl.id_clasificacion
-            LEFT JOIN canchas c ON e.id_cancha = c.id_cancha
-            WHERE e.id_entrenador = $1 AND e.activo = true
-            LIMIT 1;
+        FROM equipos e
+        LEFT JOIN clasificacion_equipo cl ON e.id_clasificacion = cl.id_clasificacion
+        LEFT JOIN canchas c ON e.id_cancha = c.id_cancha
+        WHERE e.id_entrenador = $1
+        LIMIT 1;
     `;
     const { rows } = await pool.query(query, [id_entrenador]);
     return rows[0];
@@ -31,15 +45,13 @@ const obtenerPorEntrenador = async (id_entrenador) => {
 const crear = async (datosEquipo) => {
     const { nombre_oficial, siglas, id_clasificacion, id_entrenador, id_cancha, nueva_cancha } = datosEquipo;
     
-    // Usamos el cliente para hacer una transacción (BEGIN / COMMIT / ROLLBACK)
     const client = await pool.connect();
     
     try {
-        await client.query('BEGIN'); // Inicia la transacción
+        await client.query('BEGIN');
 
         let canchaAsignadaId = id_cancha;
 
-        // Si no viene un ID de cancha, pero sí vienen los datos de una nueva, la creamos primero
         if (!canchaAsignadaId && nueva_cancha) {
             const insertCanchaQuery = `
                 INSERT INTO canchas (nombre_cancha, direccion, capacidad)
@@ -53,7 +65,6 @@ const crear = async (datosEquipo) => {
             canchaAsignadaId = canchaRows[0].id_cancha;
         }
 
-        // Ahora creamos el equipo con el id_cancha (ya sea el existente o el recién creado)
         const insertEquipoQuery = `
             INSERT INTO equipos (nombre_oficial, siglas, id_clasificacion, id_cancha, id_entrenador)
             VALUES ($1, $2, $3, $4, $5) 
@@ -63,19 +74,81 @@ const crear = async (datosEquipo) => {
             nombre_oficial, siglas, id_clasificacion, canchaAsignadaId, id_entrenador
         ]);
 
-        await client.query('COMMIT'); // Todo salió bien, guardamos permanentemente
+        await client.query('COMMIT');
         return equipoRows[0];
 
     } catch (error) {
-        await client.query('ROLLBACK'); // Algo falló, deshacemos todo
+        await client.query('ROLLBACK');
         throw error;
     } finally {
-        client.release(); // Liberamos el cliente de vuelta al pool
+        client.release();
     }
+};
+
+const actualizar = async (id_equipo, datosEquipo) => {
+    const { nombre_oficial, siglas, id_clasificacion, id_cancha, direccion_cancha } = datosEquipo;
+    
+    const query = `
+        UPDATE equipos 
+        SET nombre_oficial = COALESCE($1, nombre_oficial),
+            siglas = COALESCE($2, siglas),
+            id_clasificacion = COALESCE($3, id_clasificacion),
+            id_cancha = COALESCE($4, id_cancha)
+        WHERE id_equipo = $5
+        RETURNING *;
+    `;
+    const { rows } = await pool.query(query, [nombre_oficial, siglas, id_clasificacion, id_cancha, id_equipo]);
+    return rows[0];
+};
+
+const cambiarEstado = async (id_equipo, activo) => {
+    const query = `
+        UPDATE equipos 
+        SET activo = $1
+        WHERE id_equipo = $2
+        RETURNING *;
+    `;
+    const { rows } = await pool.query(query, [activo, id_equipo]);
+    return rows[0];
+};
+
+const eliminar = async (id_equipo) => {
+    const query = `
+        UPDATE equipos 
+        SET activo = false
+        WHERE id_equipo = $1
+        RETURNING *;
+    `;
+    const { rows } = await pool.query(query, [id_equipo]);
+    return rows[0];
+};
+
+// Estadísticas del equipo
+const obtenerEstadisticas = async (id_equipo) => {
+    const query = `
+        SELECT 
+            COUNT(DISTINCT pe.id_jugador) as jugadores_activos,
+            COUNT(DISTINCT p.id_partido) as partidos_jugados,
+            COUNT(DISTINCT CASE WHEN p.marcador_local > p.marcador_visitante AND p.id_equipo_local = $1 THEN 1
+                                WHEN p.marcador_visitante > p.marcador_local AND p.id_equipo_visitante = $1 THEN 1 END) as victorias
+        FROM equipos e
+        LEFT JOIN plantilla_equipo pe ON e.id_equipo = pe.id_equipo AND pe.activo = true
+        LEFT JOIN partidos p ON (e.id_equipo = p.id_equipo_local OR e.id_equipo = p.id_equipo_visitante) 
+            AND p.estado = 'Finalizado'
+        WHERE e.id_equipo = $1
+        GROUP BY e.id_equipo;
+    `;
+    const { rows } = await pool.query(query, [id_equipo]);
+    return rows[0] || { jugadores_activos: 0, partidos_jugados: 0, victorias: 0 };
 };
 
 module.exports = {
     obtenerTodos,
+    obtenerPorId,
     obtenerPorEntrenador,
-    crear
+    crear,
+    actualizar,
+    cambiarEstado,
+    eliminar,
+    obtenerEstadisticas
 };
