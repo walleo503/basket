@@ -1,6 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import Login from '../views/Login.vue'
-import Entrenador from '../views/Entrenador.vue'
+import Entrenador from '../views/EntrenadorDashboard.vue'
 import CreateTeam from '../views/CreateTeam.vue'
 import AdminDashboard from '../views/AdminDashboard.vue'
 import Espectadores from '../views/Espectadores.vue'
