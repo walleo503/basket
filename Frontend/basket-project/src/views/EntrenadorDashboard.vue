@@ -438,7 +438,7 @@ import { useRouter } from 'vue-router'
 import Sidebar from '../components/Sidebar.vue'
 import ModalAgregarJugador from '../components/ModalAgregarJugador.vue'
 import { api } from '../Enviroments/enviroment'
-import { obtenerEquipoDeEntrenadorService } from '../services/equiposService'
+import { obtenerEquipoDeEntrenadorService } from '../services/equipossService'
 import { 
     obtenerJugadoresPorEquipoService, 
     crearJugadorService, 

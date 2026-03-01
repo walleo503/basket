@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const equipoController = require('../Controllers/equipoController');
+const equipoController = require('../Controllers/equiposController');
 
 // Rutas básicas
 router.get('/', equipoController.obtenerEquipos);
