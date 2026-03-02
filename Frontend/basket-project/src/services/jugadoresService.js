@@ -1,5 +1,9 @@
 import { api } from '../Enviroments/enviroment'
 
+// =====================================================
+// SERVICIOS PARA JUGADORES INDIVIDUALES
+// =====================================================
+
 export const obtenerJugadoresService = async () => {
     const response = await api.get('/jugadores')
     return response.data
@@ -20,7 +24,9 @@ export const verificarSancionService = async (idJugador) => {
     return response.data
 }
 
-import { api } from '../Enviroments/enviroment'
+// =====================================================
+// SERVICIOS PARA JUGADORES POR EQUIPO
+// =====================================================
 
 export const obtenerJugadoresPorEquipoService = async (idEquipo) => {
     const response = await api.get(`/jugadores/equipo/${idEquipo}`)

@@ -1,17 +1,16 @@
 const express = require('express');
 const router = express.Router();
-const equipoController = require('../Controllers/equiposController');
+// ✅ IMPORTACIÓN CORRECTA - con S
+const equiposController = require('../Controllers/equiposController');
 
-// Rutas básicas
-router.get('/', equipoController.obtenerEquipos);
-router.get('/:id', equipoController.obtenerEquipoPorId);
-router.post('/', equipoController.crearEquipo);
-router.put('/:id', equipoController.actualizarEquipo);
-
-// Rutas específicas
-router.get('/entrenador/:id', equipoController.obtenerEquipoDeEntrenador);
-router.get('/:id/estadisticas', equipoController.obtenerEstadisticasEquipo);
-router.patch('/:id/deshabilitar', equipoController.deshabilitarEquipo);
-router.patch('/:id/habilitar', equipoController.habilitarEquipo);
+// Todas las rutas con equiposController (con S)
+router.get('/', equiposController.obtenerEquipos);
+router.get('/entrenador/:id', equiposController.obtenerEquipoDeEntrenador);
+router.get('/entrenador/:id/todos', equiposController.obtenerEquiposPorEntrenador);
+router.get('/:id/estadisticas', equiposController.obtenerEstadisticasEquipo);
+router.post('/', equiposController.crearEquipo);
+router.put('/:id', equiposController.actualizarEquipo);
+router.patch('/:id/deshabilitar', equiposController.deshabilitarEquipo);
+router.patch('/:id/habilitar', equiposController.habilitarEquipo);
 
 module.exports = router;

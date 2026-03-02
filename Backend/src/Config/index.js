@@ -1,33 +1,34 @@
-require('dotenv').config();
+require('dotenv').config({ path: require('path').join(__dirname, '../../.env') });
 const express = require('express');
 const pool = require('./db');
 const errorHandler = require('../Middleware/errorHandler');
 const app = express();
 const cors = require('cors');
 
-// 🟢 IMPORTACIONES CORREGIDAS - nombres exactos de archivos
+// 🟢 IMPORTACIONES
 const usuarioRoutes = require('../Routes/usuarioRoutes');
-const equipoRoutes = require('../Routes/equiposRoutes');      // NOTA: es equiposRoutes.js (con 's')
-const canchaRoutes = require('../Routes/canchaRoutes');       // canchaRoutes.js
-const canalRoutes = require('../Routes/canalRoutes');         // canalRoutes.js
-const jugadoresRoutes = require('../Routes/jugadoresRoutes'); // jugadoresRoutes.js
-const arbitroRoutes = require('../Routes/arbitroRoutes');     // arbitroRoutes.js
+const equipoRoutes = require('../Routes/equiposRoutes');
+const canchaRoutes = require('../Routes/canchaRoutes');
+const canalRoutes = require('../Routes/canalRoutes');
+const jugadoresRoutes = require('../Routes/jugadoresRoutes');
+const arbitroRoutes = require('../Routes/arbitroRoutes');
+
+console.log('📁 Ruta del .env:', require('path').join(__dirname, '../../.env'));
+console.log('🔧 DB_USER:', process.env.DB_USER);
+console.log('🔧 DB_PASSWORD:', process.env.DB_PASSWORD ? '✓ Cargada' : '✗ No cargada');
 
 // Middleware
-app.use(cors({
-    origin: 'http://localhost:5173' 
-}));
-
+app.use(cors({ origin: 'http://localhost:5173' }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// 🟢 RUTAS - asegurar que coinciden con los nombres de archivo
+// Rutas
 app.use('/api/usuarios', usuarioRoutes);
-app.use('/api/equipos', equipoRoutes);        // ✅ correcto
-app.use('/api/canchas', canchaRoutes);        // ✅ correcto
-app.use('/api/canales', canalRoutes);          // ✅ correcto
-app.use('/api/jugadores', jugadoresRoutes);    // ✅ correcto
-app.use('/api/arbitros', arbitroRoutes);       // ✅ correcto
+app.use('/api/equipos', equipoRoutes);
+app.use('/api/canchas', canchaRoutes);
+app.use('/api/canales', canalRoutes);
+app.use('/api/jugadores', jugadoresRoutes);
+app.use('/api/arbitros', arbitroRoutes);
 
 // Probar conexión a BD
 pool.query('SELECT NOW()', (err, res) => {
@@ -44,11 +45,6 @@ app.use(errorHandler);
 app.get('/', (req, res) => {
     res.json({ mensaje: 'Servidor funcionando correctamente' });
 });
-
-console.log('🔧 Variables de entorno:');
-console.log('- DB_USER:', process.env.DB_USER);
-console.log('- DB_HOST:', process.env.DB_HOST);
-console.log('- DB_NAME:', process.env.DB_NAME);
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {

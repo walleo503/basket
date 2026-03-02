@@ -1,6 +1,45 @@
 //ruta de archivo : Backend/src/Controllers/usuarioController.js
 const authService = require('../Services/usuarioService');
 
+const bcrypt = require('bcrypt'); // 👈 Agrega esto al inicio
+
+const crearUsuario = async (req, res, next) => {
+    try {
+        const { nombre, email, password, rol } = req.body;
+        
+        if (!nombre || !email || !password || !rol) {
+            return res.status(400).json({ error: 'Todos los campos son obligatorios' });
+        }
+        
+        const rolesValidos = ['administrador', 'entrenador', 'arbitro'];
+        if (!rolesValidos.includes(rol)) {
+            return res.status(400).json({ error: 'El rol seleccionado no es válido' });
+        }
+
+        // 👇 ENCRIPTAR CONTRASEÑA ANTES DE GUARDAR
+        const salt = await bcrypt.genSalt(10);
+        const hash = await bcrypt.hash(password, salt);
+        
+        // Pasar el hash en lugar de la contraseña original
+        const nuevoUsuario = await authService.crear({
+            nombre,
+            email,
+            password: hash, // Usar el hash
+            rol
+        });
+        
+        res.status(201).json({
+            mensaje: 'Cuenta creada exitosamente',
+            usuario: nuevoUsuario
+        });
+    } catch (error) {
+        if (error.code === '23505') {
+            return res.status(400).json({ error: 'Este correo electrónico ya está en uso' });
+        }
+        next(error);
+    }
+};
+
 const login = async (req, res, next) => {
     try {
         const { correo, contrasena } = req.body;
@@ -32,32 +71,6 @@ const obtenerUsuarios = async (req, res, next) => {
     }
 };
 
-const crearUsuario = async (req, res, next) => {
-    try {
-        const { nombre, email, password, rol } = req.body;
-        
-        if (!nombre || !email || !password || !rol) {
-            return res.status(400).json({ error: 'Todos los campos son obligatorios' });
-        }
-        
-        const rolesValidos = ['administrador', 'entrenador', 'arbitro'];
-        if (!rolesValidos.includes(rol)) {
-            return res.status(400).json({ error: 'El rol seleccionado no es válido' });
-        }
 
-        // CORRECCIÓN: Usar authService
-        const nuevoUsuario = await authService.crear(req.body);
-        
-        res.status(201).json({
-            mensaje: 'Cuenta creada exitosamente',
-            usuario: nuevoUsuario
-        });
-    } catch (error) {
-        if (error.code === '23505') {
-            return res.status(400).json({ error: 'Este correo electrónico ya está en uso' });
-        }
-        next(error);
-    }
-};
 
 module.exports = { login, obtenerUsuarios, crearUsuario };

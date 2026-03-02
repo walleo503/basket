@@ -89,7 +89,6 @@
 </template>
 
 <script setup>
-
 import { ref, watch } from 'vue'
 
 const props = defineProps({
@@ -114,11 +113,22 @@ const form = ref({
 
 const isEditing = ref(false)
 
+// Resetear formulario cuando se abre/cierra el modal
 watch(() => props.show, (newVal) => {
   if (newVal && props.jugador) {
-    form.value = { ...props.jugador }
+    // Si hay jugador para editar, cargar sus datos
+    form.value = { 
+      nombre: props.jugador.nombre || '',
+      apellido: props.jugador.apellido || '',
+      numero_camiseta: props.jugador.numero_camiseta || '',
+      posicion: props.jugador.posicion || '',
+      estatura: props.jugador.estatura || '',
+      fecha_nacimiento: props.jugador.fecha_nacimiento || '',
+      es_capitan: props.jugador.es_capitan || false
+    }
     isEditing.value = true
-  } else {
+  } else if (newVal && !props.jugador) {
+    // Si es nuevo jugador, resetear formulario
     resetForm()
     isEditing.value = false
   }
@@ -143,114 +153,5 @@ const handleSubmit = () => {
 const close = () => {
   resetForm()
   emit('close')
-}
-import ModalAgregarJugador from '../components/ModalAgregarJugador.vue'
-import { ref, computed } from 'vue'
-import { obtenerJugadoresPorEquipoService, crearJugadorService, actualizarJugadorService, eliminarJugadorService } from '../services/jugadoresService'
-
-// Variables para jugadores
-const players = ref([])
-const showPlayerModal = ref(false)
-const selectedPlayer = ref(null)
-
-// Computed para promedio de estatura
-const promedioEstatura = computed(() => {
-  const jugadoresConEstatura = players.value.filter(p => p.estatura)
-  if (jugadoresConEstatura.length === 0) return 0
-  const suma = jugadoresConEstatura.reduce((acc, p) => acc + parseFloat(p.estatura), 0)
-  return suma / jugadoresConEstatura.length
-})
-
-// Métodos para jugadores
-const openAddPlayerModal = () => {
-  selectedPlayer.value = null
-  showPlayerModal.value = true
-}
-
-const editPlayer = (player) => {
-  selectedPlayer.value = player
-  showPlayerModal.value = true
-}
-
-const closePlayerModal = () => {
-  showPlayerModal.value = false
-  selectedPlayer.value = null
-}
-
-const savePlayer = async (playerData) => {
-  try {
-    if (selectedPlayer.value) {
-      // Actualizar jugador existente
-      await actualizarJugadorService(selectedPlayer.value.id_jugador, playerData)
-    } else {
-      // Crear nuevo jugador
-      await crearJugadorService({
-        ...playerData,
-        id_equipo: equipoActual.value.id_equipo
-      })
-    }
-    await cargarJugadores()
-    closePlayerModal()
-  } catch (error) {
-    console.error('Error al guardar jugador:', error)
-  }
-}
-
-const confirmDeletePlayer = (player) => {
-  if (confirm(`¿Estás seguro de eliminar a ${player.nombre} ${player.apellido} del equipo?`)) {
-    eliminarJugador(player)
-  }
-}
-
-const eliminarJugador = async (player) => {
-  try {
-    await eliminarJugadorService(player.id_jugador, equipoActual.value.id_equipo)
-    await cargarJugadores()
-  } catch (error) {
-    console.error('Error al eliminar jugador:', error)
-  }
-}
-
-const cargarJugadores = async () => {
-  if (equipoActual.value) {
-    try {
-      const data = await obtenerJugadoresPorEquipoService(equipoActual.value.id_equipo)
-      players.value = data
-    } catch (error) {
-      console.error('Error al cargar jugadores:', error)
-    }
-  }
-}
-
-// Modificar onMounted para cargar jugadores
-onMounted(async () => {
-  await obtenerMiEquipo()
-  if (equipoActual.value) {
-    await cargarJugadores()
-  }
-})
-
-const openEditTeamModal = () => {
-  // Aquí puedes abrir un modal para editar equipo
-  alert('Funcionalidad de editar equipo - Próximamente')
-}
-
-const toggleTeamStatus = async () => {
-  try {
-    const endpoint = equipoActual.value.activo ? 'deshabilitar' : 'habilitar'
-    await api.patch(`/equipos/${equipoActual.value.id_equipo}/${endpoint}`)
-    
-    // Actualizar estado local
-    equipoActual.value.activo = !equipoActual.value.activo
-    
-    const mensaje = equipoActual.value.activo 
-      ? 'Equipo habilitado correctamente' 
-      : 'Equipo deshabilitado correctamente'
-    
-    alert(mensaje)
-  } catch (error) {
-    console.error('Error al cambiar estado del equipo:', error)
-    alert('Error al cambiar el estado del equipo')
-  }
 }
 </script>

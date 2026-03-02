@@ -2,7 +2,7 @@ const equiposService = require('../Services/equiposServices');
 
 const obtenerEquipos = async (req, res, next) => {
     try {
-        const equipos = await equipoService.obtenerTodos();
+        const equipos = await equiposService.obtenerTodos();
         res.status(200).json(equipos);
     } catch (error) {
         next(error);
@@ -12,7 +12,7 @@ const obtenerEquipos = async (req, res, next) => {
 const obtenerEquipoPorId = async (req, res, next) => {
     try {
         const { id } = req.params;
-        const equipo = await equipoService.obtenerPorId(id);
+        const equipo = await equiposService.obtenerPorId(id);
         
         if (!equipo) {
             return res.status(404).json({ mensaje: 'Equipo no encontrado' });
@@ -25,7 +25,7 @@ const obtenerEquipoPorId = async (req, res, next) => {
 
 const crearEquipo = async (req, res, next) => {
     try {
-        const nuevoEquipo = await equipoService.crear(req.body);
+        const nuevoEquipo = await equiposService.crear(req.body);
         res.status(201).json({
             mensaje: 'Equipo creado exitosamente',
             equipo: nuevoEquipo
@@ -38,11 +38,7 @@ const crearEquipo = async (req, res, next) => {
 const actualizarEquipo = async (req, res, next) => {
     try {
         const { id } = req.params;
-        const equipoActualizado = await equipoService.actualizar(id, req.body);
-        
-        if (!equipoActualizado) {
-            return res.status(404).json({ mensaje: 'Equipo no encontrado' });
-        }
+        const equipoActualizado = await equiposService.actualizar(id, req.body);
         res.status(200).json({
             mensaje: 'Equipo actualizado exitosamente',
             equipo: equipoActualizado
@@ -55,11 +51,10 @@ const actualizarEquipo = async (req, res, next) => {
 const deshabilitarEquipo = async (req, res, next) => {
     try {
         const { id } = req.params;
-        const equipoDeshabilitado = await equipoService.cambiarEstado(id, false);
-        
+        const equipo = await equiposService.cambiarEstado(id, false);
         res.status(200).json({
             mensaje: 'Equipo deshabilitado correctamente',
-            equipo: equipoDeshabilitado
+            equipo
         });
     } catch (error) {
         next(error);
@@ -69,11 +64,10 @@ const deshabilitarEquipo = async (req, res, next) => {
 const habilitarEquipo = async (req, res, next) => {
     try {
         const { id } = req.params;
-        const equipoHabilitado = await equipoService.cambiarEstado(id, true);
-        
+        const equipo = await equiposService.cambiarEstado(id, true);
         res.status(200).json({
             mensaje: 'Equipo habilitado correctamente',
-            equipo: equipoHabilitado
+            equipo
         });
     } catch (error) {
         next(error);
@@ -83,7 +77,7 @@ const habilitarEquipo = async (req, res, next) => {
 const obtenerEquipoDeEntrenador = async (req, res, next) => {
     try {
         const { id } = req.params;
-        const equipo = await equipoService.obtenerPorEntrenador(id);
+        const equipo = await equiposService.obtenerPorEntrenador(id);
         
         if (!equipo) {
             return res.status(404).json({ mensaje: 'No tiene equipo registrado' });
@@ -94,10 +88,21 @@ const obtenerEquipoDeEntrenador = async (req, res, next) => {
     }
 };
 
+// ✅ NUEVA FUNCIÓN PARA OBTENER TODOS LOS EQUIPOS
+const obtenerEquiposPorEntrenador = async (req, res, next) => {
+    try {
+        const { id } = req.params;
+        const equipos = await equiposService.obtenerEquiposPorEntrenador(id);
+        res.status(200).json(equipos);
+    } catch (error) {
+        next(error);
+    }
+};
+
 const obtenerEstadisticasEquipo = async (req, res, next) => {
     try {
         const { id } = req.params;
-        const estadisticas = await equipoService.obtenerEstadisticas(id);
+        const estadisticas = await equiposService.obtenerEstadisticas(id);
         res.status(200).json(estadisticas);
     } catch (error) {
         next(error);
@@ -112,5 +117,6 @@ module.exports = {
     deshabilitarEquipo,
     habilitarEquipo,
     obtenerEquipoDeEntrenador,
+    obtenerEquiposPorEntrenador,  // ✅ EXPORTAR LA NUEVA FUNCIÓN
     obtenerEstadisticasEquipo
 };

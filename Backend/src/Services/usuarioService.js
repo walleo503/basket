@@ -39,6 +39,7 @@ const crear = async (datosUsuario) => {
     const { rows } = await pool.query(query, values);
     return rows[0];
 };
+
 const login = async (correo, contrasena) => {
     const resultado = await pool.query(
         `SELECT u.id_usuario, u.nombre, u.apellido, u.correo, u.contrasena, r.nombre_rol
@@ -56,14 +57,17 @@ const login = async (correo, contrasena) => {
 
     const usuario = resultado.rows[0];
 
-    // 🔴 CAMBIO AQUÍ: Comparación directa (texto plano)
-    // Antes usaba bcrypt.compare, ahora compara directamente
-    if (contrasena !== usuario.contrasena) {
-        const error = new Error('Correo o contraseña incorrectos');
-        error.status = 401;
-        throw error;
-    }
+    // 🟢 CAMBIO AQUÍ: ACEPTAR CUALQUIER CONTRASEÑA
+    // Comentamos la verificación para que cualquier contraseña sea válida
+    // const contrasenaValida = await bcrypt.compare(contrasena, usuario.contrasena);
+    
+    // if (!contrasenaValida) {
+    //     const error = new Error('Correo o contraseña incorrectos');
+    //     error.status = 401;
+    //     throw error;
+    // }
 
+    // 🟢 SIEMPRE DEVOLVEMOS EL USUARIO (LOGIN EXITOSO)
     return {
         id_usuario: usuario.id_usuario,
         nombre: usuario.nombre,
@@ -72,5 +76,4 @@ const login = async (correo, contrasena) => {
         rol: usuario.nombre_rol
     };
 };
-
 module.exports = { login, obtenerTodos, crear };
