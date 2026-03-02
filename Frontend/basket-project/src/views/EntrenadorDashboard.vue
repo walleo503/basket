@@ -435,15 +435,18 @@ const cargarEstadisticas = async () => {
 }
 
 const openCreateTeamModal = () => {
+    console.log('🟢 Abriendo modal crear equipo')
     equipoAEditar.value = null
     showTeamModal.value = true
+    console.log('showTeamModal:', showTeamModal.value)
 }
 
 const openEditTeamModal = (equipo) => {
+    console.log('🟢 Abriendo modal editar equipo', equipo)
     equipoAEditar.value = equipo
     showTeamModal.value = true
+    console.log('showTeamModal:', showTeamModal.value)
 }
-
 const closeTeamModal = () => {
     showTeamModal.value = false
     equipoAEditar.value = null

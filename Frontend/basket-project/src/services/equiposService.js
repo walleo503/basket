@@ -10,17 +10,19 @@ export const obtenerEquipoDeEntrenadorService = async (idEntrenador) => {
     return response.data
 }
 
-// ✅ ESTE ES EL QUE ESTÁS IMPORTANDO - DEBE EXISTIR
+// ✅ ESTE ES EL QUE USAS EN obtenerTodosLosEquipos
 export const obtenerEquiposPorEntrenadorService = async (idEntrenador) => {
     const response = await api.get(`/equipos/entrenador/${idEntrenador}/todos`)
     return response.data
 }
 
+// ✅ CAMBIA EL NOMBRE a crearEquipoService (sin la "s" al final)
 export const crearEquipoService = async (equipoData) => {
     const response = await api.post('/equipos', equipoData)
     return response.data
 }
 
+// ✅ CAMBIA EL NOMBRE a actualizarEquipoService
 export const actualizarEquipoService = async (id, equipoData) => {
     const response = await api.put(`/equipos/${id}`, equipoData)
     return response.data
