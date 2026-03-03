@@ -32,7 +32,6 @@
                     <div class="py-6 px-4 sm:px-6 lg:px-8">
                         
                         <div v-if="activeTab === 'equipo'" class="space-y-6">
-                            
                             <div v-if="hasTeam" class="space-y-6">
                                 <div class="flex justify-between items-end bg-white p-6 rounded-lg shadow-sm border border-gray-100">
                                     <div>
@@ -108,67 +107,190 @@
                         </div>
 
                         <div v-if="activeTab === 'jugadores'" class="space-y-6">
-                            <div class="flex justify-between items-center">
-                                <div>
-                                    <h2 class="text-3xl font-bold text-gray-900">Plantilla de Jugadores</h2>
-                                    <p class="mt-2 text-gray-600">Gestiona los jugadores activos de tu equipo</p>
+                            <div v-if="hasTeam">
+                                <div class="flex justify-between items-center mb-6">
+                                    <div>
+                                        <h2 class="text-3xl font-bold text-gray-900">Plantilla de Jugadores</h2>
+                                        <p class="mt-2 text-gray-600">Gestiona los jugadores activos de tu equipo</p>
+                                    </div>
+                                    <button @click="openAddPlayerModal"
+                                        class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors shadow-sm font-medium">
+                                        + Fichar Jugador
+                                    </button>
                                 </div>
-                                <button @click="openAddPlayerModal"
-                                    class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors shadow-sm font-medium">
-                                    + Fichar Jugador
-                                </button>
+
+                                <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+                                    <div v-if="players.length === 0" class="text-center py-12">
+                                        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+                                        </svg>
+                                        <h3 class="mt-2 text-sm font-medium text-gray-900">Plantilla vacía</h3>
+                                        <p class="mt-1 text-sm text-gray-500">Comienza agregando jugadores a tu equipo.</p>
+                                    </div>
+
+                                    <table v-else class="min-w-full divide-y divide-gray-200">
+                                        <thead class="bg-gray-50">
+                                            <tr>
+                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">#</th>
+                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nombre</th>
+                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Posición</th>
+                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Rol de Equipo</th>
+                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Capitán</th>
+                                                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class="bg-white divide-y divide-gray-200">
+                                            <tr v-for="player in players" :key="player.id_jugador" class="hover:bg-gray-50">
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-indigo-600">
+                                                    {{ player.numero_camiseta }}
+                                                </td>
+                                                <td class="px-6 py-4 whitespace-nowrap">
+                                                    <div class="text-sm font-medium text-gray-900">{{ player.nombre }} {{ player.apellido }}</div>
+                                                </td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                                                    {{ player.posicion }}
+                                                </td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                                    <span :class="player.rol_equipo === 'Titular' ? 'text-indigo-600' : 'text-gray-500'">
+                                                        {{ player.rol_equipo || 'Suplente' }}
+                                                    </span>
+                                                </td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm">
+                                                    <span v-if="player.es_capitan" class="px-2 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs font-bold border border-yellow-200">
+                                                        Capitán
+                                                    </span>
+                                                </td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-right">
+                                                    <button @click="editPlayer(player)" class="text-indigo-600 hover:text-indigo-900 mr-4">
+                                                        Editar
+                                                    </button>
+                                                    <button @click="confirmDeletePlayer(player)" class="text-red-600 hover:text-red-900">
+                                                        Dar de Baja
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            
+                            <div v-else class="flex flex-col items-center justify-center py-20 bg-white rounded-lg shadow-md border-2 border-dashed border-gray-200">
+                                <div class="w-24 h-24 bg-indigo-50 rounded-full flex items-center justify-center mb-6">
+                                    <svg class="h-12 w-12 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                                    </svg>
+                                </div>
+                                <h2 class="text-2xl font-bold text-gray-900 mb-2">Sección Bloqueada</h2>
+                                <p class="text-gray-600 mb-8 text-center max-w-md">Para gestionar jugadores, primero debes tener un equipo asignado.</p>
+                                <div class="flex space-x-4">
+                                    <button @click="$router.push('/crear-equipo')" class="px-6 py-3 bg-indigo-600 text-white font-semibold rounded-lg hover:bg-indigo-700 transition shadow-sm">
+                                        Crear Equipo
+                                    </button>
+                                    <button @click="irAEquiposLibres" class="px-6 py-3 bg-white border border-gray-300 text-gray-700 font-semibold rounded-lg hover:bg-gray-50 transition shadow-sm">
+                                        Unirme a Equipo
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div v-if="activeTab === 'alineacion'" class="space-y-6">
+                            
+                            <div v-if="hasTeam" class="space-y-6">
+                                <div class="flex justify-between items-center">
+                                    <div>
+                                        <h2 class="text-3xl font-bold text-gray-900">Alineación Base (Quinteto)</h2>
+                                        <p class="mt-2 text-gray-600">Define los 5 titulares que iniciarán por defecto los partidos.</p>
+                                    </div>
+                                    <div :class="titularesCount === 5 ? 'bg-green-100 text-green-800 border-green-300' : 'bg-yellow-100 text-yellow-800 border-yellow-300'" 
+                                         class="px-4 py-2 rounded-md font-bold shadow-sm border">
+                                        Titulares: {{ titularesCount }} / 5
+                                    </div>
+                                </div>
+
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
+                                    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-5">
+                                        <h3 class="text-lg font-bold text-gray-900 mb-4 border-b pb-2 flex items-center">
+                                            <svg class="w-5 h-5 mr-2 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                                            Titulares (En Cancha)
+                                        </h3>
+                                        <ul class="space-y-3">
+                                            <li v-for="player in titulares" :key="player.id_jugador" 
+                                                class="flex justify-between items-center p-3 bg-indigo-50 border border-indigo-100 rounded-lg transition-all hover:shadow-md">
+                                                <div class="flex items-center">
+                                                    <span class="w-8 h-8 rounded-full bg-indigo-600 text-white flex items-center justify-center font-bold text-sm mr-3">
+                                                        {{ player.numero_camiseta }}
+                                                    </span>
+                                                    <div>
+                                                        <p class="font-bold text-indigo-900 leading-tight">
+                                                            {{ player.nombre }} {{ player.apellido }}
+                                                            <span v-if="player.es_capitan" class="ml-1 text-xs px-1.5 py-0.5 bg-yellow-400 text-yellow-900 rounded-sm">C</span>
+                                                        </p>
+                                                        <p class="text-xs text-indigo-600 font-medium">{{ player.posicion }}</p>
+                                                    </div>
+                                                </div>
+                                                <button @click="cambiarRol(player, 'Suplente')" 
+                                                        class="px-3 py-1 text-xs font-bold bg-white text-red-600 border border-red-200 rounded hover:bg-red-50 transition-colors">
+                                                    Mover a Banca
+                                                </button>
+                                            </li>
+                                            <li v-if="titulares.length === 0" class="text-center py-8 text-gray-500 text-sm border-2 border-dashed border-gray-200 rounded-lg">
+                                                Tu cancha está vacía. Añade titulares desde la banca.
+                                            </li>
+                                        </ul>
+                                    </div>
+
+                                    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-5">
+                                        <h3 class="text-lg font-bold text-gray-900 mb-4 border-b pb-2 flex items-center">
+                                            <svg class="w-5 h-5 mr-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 002-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+                                            Suplentes (Banquillo)
+                                        </h3>
+                                        <ul class="space-y-3">
+                                            <li v-for="player in suplentes" :key="player.id_jugador" 
+                                                class="flex justify-between items-center p-3 bg-gray-50 border border-gray-200 rounded-lg transition-all hover:bg-gray-100">
+                                                <div class="flex items-center">
+                                                    <span class="w-8 h-8 rounded-full bg-gray-200 text-gray-700 flex items-center justify-center font-bold text-sm mr-3">
+                                                        {{ player.numero_camiseta }}
+                                                    </span>
+                                                    <div>
+                                                        <p class="font-bold text-gray-900 leading-tight">
+                                                            {{ player.nombre }} {{ player.apellido }}
+                                                            <span v-if="player.es_capitan" class="ml-1 text-xs px-1.5 py-0.5 bg-yellow-400 text-yellow-900 rounded-sm">C</span>
+                                                        </p>
+                                                        <p class="text-xs text-gray-500 font-medium">{{ player.posicion }}</p>
+                                                    </div>
+                                                </div>
+                                                <button @click="cambiarRol(player, 'Titular')" 
+                                                        :disabled="titularesCount >= 5"
+                                                        :class="titularesCount >= 5 ? 'opacity-50 cursor-not-allowed bg-gray-100 text-gray-400' : 'bg-white text-indigo-600 border border-indigo-200 hover:bg-indigo-50'"
+                                                        class="px-3 py-1 text-xs font-bold rounded transition-colors">
+                                                    Hacer Titular
+                                                </button>
+                                            </li>
+                                            <li v-if="suplentes.length === 0" class="text-center py-8 text-gray-500 text-sm border-2 border-dashed border-gray-200 rounded-lg">
+                                                No tienes jugadores en el banquillo.
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
                             </div>
 
-                            <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-                                <div v-if="players.length === 0" class="text-center py-12">
-                                    <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+                            <div v-else class="flex flex-col items-center justify-center py-20 bg-white rounded-lg shadow-md border-2 border-dashed border-gray-200">
+                                <div class="w-24 h-24 bg-indigo-50 rounded-full flex items-center justify-center mb-6">
+                                    <svg class="h-12 w-12 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                                     </svg>
-                                    <h3 class="mt-2 text-sm font-medium text-gray-900">Plantilla vacía</h3>
-                                    <p class="mt-1 text-sm text-gray-500">Comienza agregando jugadores a tu equipo.</p>
                                 </div>
-
-                                <table v-else class="min-w-full divide-y divide-gray-200">
-                                    <thead class="bg-gray-50">
-                                        <tr>
-                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">#</th>
-                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nombre</th>
-                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Posición</th>
-                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estatura</th>
-                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Rol</th>
-                                            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody class="bg-white divide-y divide-gray-200">
-                                        <tr v-for="player in players" :key="player.id_jugador" class="hover:bg-gray-50">
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-indigo-600">
-                                                {{ player.numero_camiseta }}
-                                            </td>
-                                            <td class="px-6 py-4 whitespace-nowrap">
-                                                <div class="text-sm font-medium text-gray-900">{{ player.nombre }} {{ player.apellido }}</div>
-                                            </td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                                                {{ player.posicion }}
-                                            </td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                                                {{ player.estatura ? player.estatura + 'm' : '-' }}
-                                            </td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm">
-                                                <span v-if="player.es_capitan" class="px-2 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs font-bold border border-yellow-200">
-                                                    Capitán
-                                                </span>
-                                            </td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-right">
-                                                <button @click="editPlayer(player)" class="text-indigo-600 hover:text-indigo-900 mr-4">
-                                                    Editar
-                                                </button>
-                                                <button @click="confirmDeletePlayer(player)" class="text-red-600 hover:text-red-900">
-                                                    Dar de Baja
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
+                                <h2 class="text-2xl font-bold text-gray-900 mb-2">Sección Bloqueada</h2>
+                                <p class="text-gray-600 mb-8 text-center max-w-md">Para gestionar tu alineación titular, primero debes tener un equipo asignado.</p>
+                                
+                                <div class="flex space-x-4">
+                                    <button @click="$router.push('/crear-equipo')" class="px-6 py-3 bg-indigo-600 text-white font-semibold rounded-lg hover:bg-indigo-700 transition shadow-sm">
+                                        Crear Equipo
+                                    </button>
+                                    <button @click="irAEquiposLibres" class="px-6 py-3 bg-white border border-gray-300 text-gray-700 font-semibold rounded-lg hover:bg-gray-50 transition shadow-sm">
+                                        Unirme a Equipo
+                                    </button>
+                                </div>
                             </div>
                         </div>
 
@@ -179,6 +301,44 @@
                             </div>
                             <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-10 text-center">
                                 <p class="text-gray-500">Aún no hay datos de torneos disponibles.</p>
+                            </div>
+                        </div>
+
+                        <div v-if="activeTab === 'perfil'" class="space-y-6 max-w-3xl mx-auto">
+                            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-8">
+                                <h2 class="text-2xl font-bold text-gray-900 mb-6 flex items-center">
+                                    <svg class="w-6 h-6 mr-3 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                                    Mi Perfil Personal
+                                </h2>
+                                
+                                <form @submit.prevent="guardarPerfil" class="space-y-5">
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700 mb-1">Nombre</label>
+                                            <input type="text" v-model="perfilForm.nombre" required
+                                                class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 outline-none transition-all">
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700 mb-1">Apellido</label>
+                                            <input type="text" v-model="perfilForm.apellido" required
+                                                class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 outline-none transition-all">
+                                        </div>
+                                    </div>
+                                    
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Correo Electrónico</label>
+                                        <input type="email" v-model="perfilForm.correo" required
+                                            class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 outline-none transition-all bg-gray-50">
+                                    </div>
+
+                                    <div class="pt-4 flex justify-end">
+                                        <button type="submit" :disabled="guardandoPerfil"
+                                            class="px-6 py-2.5 bg-indigo-600 text-white font-medium rounded-md hover:bg-indigo-700 transition-colors shadow-sm disabled:opacity-50 flex items-center">
+                                            <span v-if="guardandoPerfil">Guardando...</span>
+                                            <span v-else>Actualizar Perfil</span>
+                                        </button>
+                                    </div>
+                                </form>
                             </div>
                         </div>
 
@@ -198,7 +358,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import Sidebar from '../components/Sidebar.vue'
 
@@ -214,6 +374,7 @@ import {
     obtenerJugadoresLibresService,
     vincularJugadorService
 } from '../services/jugadoresService'
+import {actualizarPerfilService} from '../services/usuarioService'
 
 const router = useRouter()
 const activeTab = ref('equipo')
@@ -224,10 +385,18 @@ const userName = ref(usuarioData.nombre || 'Entrenador')
 const hasTeam = ref(false)
 const equipoActual = ref(null)
 const estadisticas = ref(null)
-
+const guardandoPerfil = ref(false)
 const players = ref([])
 const showPlayerModal = ref(false)
 const selectedPlayer = ref(null)
+const perfilForm = ref({
+    nombre: usuarioData.nombre || '',
+    apellido: usuarioData.apellido || '',
+    correo: usuarioData.correo || ''
+})
+const titulares = computed(() => players.value.filter(p => p.rol_equipo === 'Titular'))
+const suplentes = computed(() => players.value.filter(p => p.rol_equipo !== 'Titular'))
+const titularesCount = computed(() => titulares.value.length)
 
 const obtenerMiEquipo = async () => {
     try {
@@ -247,6 +416,27 @@ const obtenerMiEquipo = async () => {
         }
     }
 }
+const guardarPerfil = async () => {
+    guardandoPerfil.value = true;
+    try {
+        const idUsuario = localStorage.getItem('usuario_id');
+        
+        const respuesta = await actualizarPerfilService(idUsuario, perfilForm.value);
+        
+        const nuevoUsuarioLocal = { ...usuarioData, ...respuesta.usuario };
+        
+        localStorage.setItem('usuario', JSON.stringify(nuevoUsuarioLocal));
+        
+        userName.value = respuesta.usuario.nombre;
+        
+        alert('Perfil actualizado exitosamente.');
+    } catch (error) {
+        
+        alert(error.response?.data?.error || 'Error al actualizar el perfil.');
+    } finally {
+        guardandoPerfil.value = false;
+    }
+}
 const cargarEstadisticas = async () => {
     if (equipoActual.value) {
         try {
@@ -257,6 +447,7 @@ const cargarEstadisticas = async () => {
         }
     }
 }
+
 const toggleTeamStatus = async () => {
     try {
         const endpoint = equipoActual.value.activo ? 'deshabilitar' : 'habilitar'
@@ -267,6 +458,7 @@ const toggleTeamStatus = async () => {
         alert('Error al cambiar el estado del equipo')
     }
 }
+
 const abandonarEquipoDirigido = async () => {
     if (!equipoActual.value) return;
     const confirmacion = confirm(`¿Estás TOTALMENTE seguro de que deseas abandonar el equipo "${equipoActual.value.nombre_oficial}"?`);
@@ -288,6 +480,7 @@ const abandonarEquipoDirigido = async () => {
 const openEditTeamModal = () => {
     alert('Funcionalidad de editar equipo - Próximamente')
 }
+
 const cargarJugadores = async () => {
     if (equipoActual.value) {
         try {
@@ -298,6 +491,7 @@ const cargarJugadores = async () => {
         }
     }
 }
+
 const cargarJugadoresLibres = async () => {
     try {
         jugadoresLibres.value = await obtenerJugadoresLibresService();
@@ -310,7 +504,6 @@ const openAddPlayerModal = async () => {
     selectedPlayer.value = null
     await cargarJugadoresLibres();
     showPlayerModal.value = true
-
 }
 
 const editPlayer = (player) => {
@@ -353,7 +546,6 @@ const savePlayer = async (payload) => {
     }
 }
 
-
 const confirmDeletePlayer = (player) => {
     if (confirm(`¿Estás seguro de dar de baja a ${player.nombre} ${player.apellido}?`)) {
         eliminarJugador(player)
@@ -370,6 +562,25 @@ const eliminarJugador = async (player) => {
         alert('Error al dar de baja al jugador')
     }
 }
+
+const cambiarRol = async (player, nuevoRol) => {
+    if (nuevoRol === 'Titular' && titularesCount.value >= 5) {
+        alert('REGLA BALONCESTO: Tu equipo ya tiene 5 jugadores titulares asignados.');
+        return;
+    }
+    try {
+        await actualizarJugadorService(player.id_jugador, {
+            ...player,
+            fecha_nacimiento: player.fecha_nacimiento ? player.fecha_nacimiento.split('T')[0] : null,
+            id_equipo: equipoActual.value.id_equipo,
+            rol_equipo: nuevoRol 
+        });
+        await cargarJugadores();
+    } catch (error) {
+        alert(error.response?.data?.error || 'Ocurrió un error al intentar cambiar la alineación.');
+    }
+}
+
 const navigateTo = (tab) => {
     activeTab.value = tab
 }
@@ -381,9 +592,9 @@ const irAEquiposLibres = () => {
 const logout = () => {
     localStorage.removeItem('usuario')
     localStorage.removeItem('usuario_id')
-    localStorage.removeItem('token')
     router.push('/login')
 }
+
 onMounted(async () => {
     await obtenerMiEquipo()
     if (equipoActual.value) {

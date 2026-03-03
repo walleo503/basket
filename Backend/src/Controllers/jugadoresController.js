@@ -18,8 +18,8 @@ const crearJugador = async (req, res, next) => {
             jugador: nuevoJugador
         });
     } catch (error) {
-        if (error.message.includes('límite máximo') || error.message.includes('ya está en uso')) {
-            return res.status(400).json({ error: error.message });
+        if (error.message.includes('límite máximo') || error.message.includes('ya está en uso')|| error.message.includes('REGLA_BALONCESTO')) {
+            return res.status(400).json({ error: error.message.replace('REGLA_BALONCESTO: ', '') });
         }
         next(error);
     }
@@ -40,7 +40,7 @@ const actualizarJugador = async (req, res, next) => {
         });
     } catch (error) {
         if (error.message.includes('ya lo usa otro compañero')) {
-            return res.status(400).json({ error: error.message });
+            return res.status(400).json({ error: error.message.replace('REGLA_BALONCESTO: ', '') });
         }
         next(error);
     }

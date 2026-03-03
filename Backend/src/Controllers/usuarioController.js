@@ -44,8 +44,6 @@ const crearUsuario = async (req, res, next) => {
         if (!rolesValidos.includes(rol)) {
             return res.status(400).json({ error: 'El rol seleccionado no es válido' });
         }
-
-        // CORRECCIÓN: Usar authService
         const nuevoUsuario = await authService.crear(req.body);
         
         res.status(201).json({
@@ -59,5 +57,23 @@ const crearUsuario = async (req, res, next) => {
         next(error);
     }
 };
+const actualizarMiPerfil = async (req, res, next) => {
+    try {
+        const { id } = req.params; 
+        const datosBody = req.body;
 
-module.exports = { login, obtenerUsuarios, crearUsuario };
+        const usuarioActualizado = await authService.actualizarPerfil(id, datosBody);
+        
+        res.status(200).json({
+            mensaje: 'Perfil actualizado exitosamente',
+            usuario: usuarioActualizado
+        });
+    } catch (error) {
+        // Atrapamos el error del correo duplicado
+        if (error.message.includes('asociado a otra cuenta')) {
+            return res.status(400).json({ error: error.message });
+        }
+        next(error);
+    }
+};
+module.exports = { login, obtenerUsuarios, crearUsuario, actualizarMiPerfil };

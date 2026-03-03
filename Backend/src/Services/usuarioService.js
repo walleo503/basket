@@ -69,5 +69,39 @@ const login = async (correo, contrasena) => {
         rol: usuario.nombre_rol
     };
 };
+const actualizarPerfil = async (id_usuario, datosPerfil) => {
+    const { nombre, apellido, correo } = datosPerfil;
+    const client = await pool.connect();
 
-module.exports = { login, obtenerTodos, crear };
+    try {
+        await client.query('BEGIN');
+        if (correo) {
+            const emailCheck = await client.query(
+                `SELECT id_usuario FROM usuarios WHERE correo = $1 AND id_usuario != $2`, 
+                [correo, id_usuario]
+            );
+            if (emailCheck.rows.length > 0) {
+                throw new Error('El correo ingresado ya está asociado a otra cuenta.');
+            }
+        }
+        const updateQuery = `
+            UPDATE usuarios 
+            SET nombre = COALESCE($1, nombre),
+                apellido = COALESCE($2, apellido),
+                correo = COALESCE($3, correo)
+            WHERE id_usuario = $4
+            RETURNING id_usuario, nombre, apellido, correo, id_rol, activo;
+        `;
+        const { rows } = await client.query(updateQuery, [nombre, apellido, correo, id_usuario]);
+
+        await client.query('COMMIT');
+        return rows[0]; 
+    } catch (error) {
+        await client.query('ROLLBACK');
+        throw error;
+    } finally {
+        client.release();
+    }
+};
+
+module.exports = { login, obtenerTodos, crear, actualizarPerfil };
