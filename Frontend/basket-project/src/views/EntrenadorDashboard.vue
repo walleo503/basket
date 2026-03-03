@@ -190,6 +190,7 @@
         <ModalAgregarJugador 
             :show="showPlayerModal"
             :jugador="selectedPlayer"
+            :jugadoresLibres="jugadoresLibres"
             @close="closePlayerModal"
             @save="savePlayer"
         />
@@ -209,12 +210,14 @@ import {
     obtenerJugadoresPorEquipoService, 
     crearJugadorService, 
     actualizarJugadorService, 
-    eliminarJugadorService 
+    eliminarJugadorService,
+    obtenerJugadoresLibresService,
+    vincularJugadorService
 } from '../services/jugadoresService'
 
 const router = useRouter()
 const activeTab = ref('equipo')
-
+const jugadoresLibres = ref([])
 const usuarioData = JSON.parse(localStorage.getItem('usuario') || '{}')
 const userName = ref(usuarioData.nombre || 'Entrenador')
 
@@ -295,10 +298,19 @@ const cargarJugadores = async () => {
         }
     }
 }
+const cargarJugadoresLibres = async () => {
+    try {
+        jugadoresLibres.value = await obtenerJugadoresLibresService();
+    } catch (error) {
+        console.error('Error cargando agentes libres:', error)
+    }
+}
 
-const openAddPlayerModal = () => {
+const openAddPlayerModal = async () => {
     selectedPlayer.value = null
+    await cargarJugadoresLibres();
     showPlayerModal.value = true
+
 }
 
 const editPlayer = (player) => {
@@ -311,28 +323,36 @@ const closePlayerModal = () => {
     selectedPlayer.value = null
 }
 
-const savePlayer = async (playerData) => {
+const savePlayer = async (payload) => {
     try {
-        if (selectedPlayer.value) {
-            await actualizarJugadorService(selectedPlayer.value.id_jugador, {
-                ...playerData,
+        if (payload.isEditing) {
+            await actualizarJugadorService(payload.data.id_jugador, {
+                ...payload.data,
                 id_equipo: equipoActual.value.id_equipo 
             })
             alert('Jugador actualizado correctamente')
-        } else {
-            await crearJugadorService({
-                ...playerData,
+        } else if (payload.isAgenteLibre) {
+            await vincularJugadorService(payload.data.id_jugador, {
+                numero_camiseta: payload.data.numero_camiseta,
+                es_capitan: payload.data.es_capitan,
                 id_equipo: equipoActual.value.id_equipo
             })
-            alert('Jugador fichado correctamente')
+            alert('Agente libre fichado correctamente')
+        } else {
+            await crearJugadorService({
+                ...payload.data,
+                id_equipo: equipoActual.value.id_equipo
+            })
+            alert('Nuevo jugador registrado correctamente')
         }
         await cargarJugadores()
         await cargarEstadisticas()
         closePlayerModal()
     } catch (error) {
-        alert(error.response?.data?.error || 'Error al guardar el jugador')
+        alert(error.response?.data?.error || 'Error al procesar el jugador')
     }
 }
+
 
 const confirmDeletePlayer = (player) => {
     if (confirm(`¿Estás seguro de dar de baja a ${player.nombre} ${player.apellido}?`)) {

@@ -40,3 +40,12 @@ export const eliminarJugadorService = async (id, idEquipo) => {
     const response = await api.delete(`/jugadores/${id}/equipo/${idEquipo}`)
     return response.data
 }
+export const obtenerJugadoresLibresService = async () => {
+    const response = await api.get('/jugadores/libres/disponibles')
+    return response.data
+}
+
+export const vincularJugadorService = async (idJugador, datosPlantilla) => {
+    const response = await api.post(`/jugadores/${idJugador}/vincular`, datosPlantilla)
+    return response.data
+}
