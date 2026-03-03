@@ -16,3 +16,7 @@ export const obtenerEquipoDeEntrenadorService = async (idEntrenador) => {
     const response = await api.get(`/equipos/entrenador/${idEntrenador}`)
     return response.data
 }
+export const actualizarEquipoService = async (idEquipo, datosEquipo) => {
+    const response = await api.put(`/equipos/${idEquipo}`, datosEquipo)
+    return response.data
+}

@@ -4,13 +4,13 @@ const pool = require('./db');
 const errorHandler = require('../Middleware/errorHandler');
 const app = express();
 const cors = require('cors');
-
+const torneosRoutes = require('../Routes/torneosRoutes');     
 const usuarioRoutes = require('../Routes/usuarioRoutes');
-const equipoRoutes = require('../Routes/equiposRoutes');      // NOTA: es equiposRoutes.js (con 's')
-const canchaRoutes = require('../Routes/canchaRoutes');       // canchaRoutes.js
-const canalRoutes = require('../Routes/canalRoutes');         // canalRoutes.js
-const jugadoresRoutes = require('../Routes/jugadoresRoutes'); // jugadoresRoutes.js
-const arbitroRoutes = require('../Routes/arbitroRoutes');     // arbitroRoutes.js
+const equipoRoutes = require('../Routes/equiposRoutes');      
+const canchaRoutes = require('../Routes/canchaRoutes');       
+const canalRoutes = require('../Routes/canalRoutes');         
+const jugadoresRoutes = require('../Routes/jugadoresRoutes'); 
+const arbitroRoutes = require('../Routes/arbitroRoutes');     
 
 // Middleware
 app.use(cors({
@@ -20,13 +20,13 @@ app.use(cors({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// 🟢 RUTAS - asegurar que coinciden con los nombres de archivo
 app.use('/api/usuarios', usuarioRoutes);
-app.use('/api/equipos', equipoRoutes);        // ✅ correcto
-app.use('/api/canchas', canchaRoutes);        // ✅ correcto
-app.use('/api/canales', canalRoutes);          // ✅ correcto
-app.use('/api/jugadores', jugadoresRoutes);    // ✅ correcto
-app.use('/api/arbitros', arbitroRoutes);       // ✅ correcto
+app.use('/api/equipos', equipoRoutes);        
+app.use('/api/canchas', canchaRoutes);        
+app.use('/api/canales', canalRoutes);          
+app.use('/api/jugadores', jugadoresRoutes);   
+app.use('/api/arbitros', arbitroRoutes);       
+app.use('/api/torneos', torneosRoutes);        
 
 // Probar conexión a BD
 pool.query('SELECT NOW()', (err, res) => {

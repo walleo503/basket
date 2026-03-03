@@ -137,7 +137,7 @@
                                                 <span class="truncate block max-w-xs" :title="canal.horario">{{ canal.horario || 'Sin definir' }}</span>
                                             </td>
                                         </tr>
-                                        <tr v-if="listaCanales.length === 0">
+                                        <tr v-if="listaCanales && listaCanales.length === 0">
                                             <td colspan="4" class="px-6 py-12 text-center text-gray-500">
                                                 <svg class="mx-auto h-12 w-12 text-gray-400 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
                                                 No hay canales registrados aún. Comienza agregando uno nuevo.
@@ -150,109 +150,103 @@
                     </div>
 
                     <div v-if="activeTab === 'cuentas'" class="space-y-6 animate-fade-in">
-    <div class="flex justify-between items-center">
-        <div>
-            <h2 class="text-3xl font-bold text-gray-900">Gestión de Cuentas</h2>
-            <p class="mt-2 text-gray-600">Registra entrenadores, árbitros y otros administradores.</p>
-        </div>
-        <button @click="toggleFormularioCuenta" class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition">
-            {{ mostrandoFormCuenta ? 'Ver Lista de Cuentas' : '+ Nueva Cuenta' }}
-        </button>
-    </div>
-
-    <div v-if="mostrandoFormCuenta" class="bg-white rounded-lg shadow-md p-6 animate-fade-in">
-        <h3 class="text-xl font-bold text-gray-900 mb-6">Registrar Nueva Cuenta</h3>
-        
-        <form @submit.prevent="handleCrearCuenta" class="space-y-6">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Nombre Completo <span class="text-red-500">*</span></label>
-                    <input type="text" v-model="formCuenta.nombre" required placeholder="Ej: Juan Pérez"
-                        class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500">
-                </div>
-
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Correo Electrónico <span class="text-red-500">*</span></label>
-                    <input type="email" v-model="formCuenta.email" required placeholder="correo@ejemplo.com"
-                        class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500">
-                </div>
-
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Contraseña Temporal <span class="text-red-500">*</span></label>
-                    <input type="password" v-model="formCuenta.password" required placeholder="Mínimo 6 caracteres" minlength="6"
-                        class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500">
-                </div>
-
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Rol del Sistema <span class="text-red-500">*</span></label>
-                    <select v-model="formCuenta.rol" required class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500 bg-white">
-                        <option value="" disabled>Selecciona un rol...</option>
-                        <option value="entrenador">Entrenador</option>
-                        <option value="arbitro">Árbitro</option>
-                        <option value="administrador">Administrador</option>
-                    </select>
-                </div>
-            </div>
-
-            <div v-if="mensajeErrorCuenta" class="text-red-600 text-sm bg-red-50 p-3 rounded-md border border-red-200 animate-fade-in">{{ mensajeErrorCuenta }}</div>
-            <div v-if="mensajeExitoCuenta" class="text-green-600 text-sm bg-green-50 p-3 rounded-md border border-green-200 animate-fade-in">{{ mensajeExitoCuenta }}</div>
-
-            <div class="flex justify-end space-x-4 pt-4 border-t">
-                <button type="button" @click="toggleFormularioCuenta" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition">Cancelar</button>
-                <button type="submit" :disabled="cargandoFormCuenta" class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition disabled:opacity-50">
-                    {{ cargandoFormCuenta ? 'Creando...' : 'Crear Cuenta' }}
-                </button>
-            </div>
-        </form>
-    </div>
-
-    <div v-else class="bg-white rounded-lg shadow-md overflow-hidden animate-fade-in">
-        <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-gray-200">
-                <thead class="bg-gray-50">
-                    <tr>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nombre</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Rol</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
-                    </tr>
-                </thead>
-                <tbody class="bg-white divide-y divide-gray-200">
-                    <tr v-for="cuenta in listaCuentas" :key="cuenta.id_usuario" class="hover:bg-gray-50">
-                        <td class="px-6 py-4 whitespace-nowrap font-medium text-gray-900">{{ cuenta.nombre }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ cuenta.email }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <span :class="{
-                                'bg-purple-100 text-purple-800 border-purple-200': cuenta.rol === 'administrador',
-                                'bg-blue-100 text-blue-800 border-blue-200': cuenta.rol === 'entrenador',
-                                'bg-orange-100 text-orange-800 border-orange-200': cuenta.rol === 'arbitro'
-                            }" class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full capitalize border">
-                                {{ cuenta.rol }}
-                            </span>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm">
-                            <span class="text-green-600 font-medium flex items-center" v-if="cuenta.activo">
-                                <span class="w-2 h-2 bg-green-500 rounded-full mr-2"></span> Activo
-                            </span>
-                            <span class="text-red-600 font-medium flex items-center" v-else>
-                                <span class="w-2 h-2 bg-red-500 rounded-full mr-2"></span> Inactivo
-                            </span>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
-</div>
-
-                    <div v-if="activeTab === 'torneo'" class="space-y-6 animate-fade-in">
-                        <div>
-                            <h2 class="text-3xl font-bold text-gray-900">Crear Torneo</h2>
-                            <p class="mt-2 text-gray-600">Configura un nuevo torneo o campeonato.</p>
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <h2 class="text-3xl font-bold text-gray-900">Gestión de Cuentas</h2>
+                                <p class="mt-2 text-gray-600">Registra entrenadores, árbitros y otros administradores.</p>
+                            </div>
+                            <button @click="toggleFormularioCuenta" class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition">
+                                {{ mostrandoFormCuenta ? 'Ver Lista de Cuentas' : '+ Nueva Cuenta' }}
+                            </button>
                         </div>
-                        <div class="bg-white rounded-lg shadow-md p-6">
-                            <p class="text-gray-500 text-center py-10">Módulo de torneos en construcción...</p>
+
+                        <div v-if="mostrandoFormCuenta" class="bg-white rounded-lg shadow-md p-6 animate-fade-in">
+                            <h3 class="text-xl font-bold text-gray-900 mb-6">Registrar Nueva Cuenta</h3>
+                            
+                            <form @submit.prevent="handleCrearCuenta" class="space-y-6">
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">Nombre Completo <span class="text-red-500">*</span></label>
+                                        <input type="text" v-model="formCuenta.nombre" required placeholder="Ej: Juan Pérez"
+                                            class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500">
+                                    </div>
+
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">Correo Electrónico <span class="text-red-500">*</span></label>
+                                        <input type="email" v-model="formCuenta.email" required placeholder="correo@ejemplo.com"
+                                            class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500">
+                                    </div>
+
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">Contraseña Temporal <span class="text-red-500">*</span></label>
+                                        <input type="password" v-model="formCuenta.password" required placeholder="Mínimo 6 caracteres" minlength="6"
+                                            class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500">
+                                    </div>
+
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">Rol del Sistema <span class="text-red-500">*</span></label>
+                                        <select v-model="formCuenta.rol" required class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500 bg-white">
+                                            <option value="" disabled>Selecciona un rol...</option>
+                                            <option value="entrenador">Entrenador</option>
+                                            <option value="arbitro">Árbitro</option>
+                                            <option value="administrador">Administrador</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div v-if="mensajeErrorCuenta" class="text-red-600 text-sm bg-red-50 p-3 rounded-md border border-red-200 animate-fade-in">{{ mensajeErrorCuenta }}</div>
+                                <div v-if="mensajeExitoCuenta" class="text-green-600 text-sm bg-green-50 p-3 rounded-md border border-green-200 animate-fade-in">{{ mensajeExitoCuenta }}</div>
+
+                                <div class="flex justify-end space-x-4 pt-4 border-t">
+                                    <button type="button" @click="toggleFormularioCuenta" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition">Cancelar</button>
+                                    <button type="submit" :disabled="cargandoFormCuenta" class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition disabled:opacity-50">
+                                        {{ cargandoFormCuenta ? 'Creando...' : 'Crear Cuenta' }}
+                                    </button>
+                                </div>
+                            </form>
                         </div>
+
+                        <div v-else class="bg-white rounded-lg shadow-md overflow-hidden animate-fade-in">
+                            <div class="overflow-x-auto">
+                                <table class="min-w-full divide-y divide-gray-200">
+                                    <thead class="bg-gray-50">
+                                        <tr>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nombre</th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Rol</th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="bg-white divide-y divide-gray-200">
+                                        <tr v-for="cuenta in listaCuentas" :key="cuenta.id_usuario" class="hover:bg-gray-50">
+                                            <td class="px-6 py-4 whitespace-nowrap font-medium text-gray-900">{{ cuenta.nombre }}</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ cuenta.email }}</td>
+                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                <span :class="{
+                                                    'bg-purple-100 text-purple-800 border-purple-200': cuenta.rol === 'administrador',
+                                                    'bg-blue-100 text-blue-800 border-blue-200': cuenta.rol === 'entrenador',
+                                                    'bg-orange-100 text-orange-800 border-orange-200': cuenta.rol === 'arbitro'
+                                                }" class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full capitalize border">
+                                                    {{ cuenta.rol }}
+                                                </span>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm">
+                                                <span class="text-green-600 font-medium flex items-center" v-if="cuenta.activo">
+                                                    <span class="w-2 h-2 bg-green-500 rounded-full mr-2"></span> Activo
+                                                </span>
+                                                <span class="text-red-600 font-medium flex items-center" v-else>
+                                                    <span class="w-2 h-2 bg-red-500 rounded-full mr-2"></span> Inactivo
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div v-if="activeTab === 'torneo'" class="animate-fade-in">
+                        <CrearTorneo />
                     </div>
 
                     <div v-if="activeTab === 'perfil'" class="space-y-6 animate-fade-in">
@@ -275,7 +269,7 @@
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import AdminSidebar from '../components/AdminSidebar.vue'
-
+import CrearTorneo from '../views/Admin/CrearTorneo.vue'
 import { obtenerCanalesService, crearCanalService } from '../services/canalService'
 import { obtenerUsuariosService, crearUsuarioService } from '../services/usuarioService'
 

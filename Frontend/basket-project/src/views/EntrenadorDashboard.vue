@@ -1,4 +1,6 @@
+<!--ruta: /views/EntrenadorDashboard.vue-->
 <template>
+    
     <div>
         <div class="min-h-screen bg-gray-50">
             <nav class="bg-white shadow-md">
@@ -354,6 +356,12 @@
             @close="closePlayerModal"
             @save="savePlayer"
         />
+        <EditarEquipo 
+            :show="showEditarEquipoModal"
+            :equipo="equipoActual"
+            @close="showEditarEquipoModal = false"
+            @save="saveTeam"
+        />
     </div>
 </template>
 
@@ -361,11 +369,11 @@
 import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import Sidebar from '../components/Sidebar.vue'
-
+import EditarEquipo from '../modals/EditarEquipo.vue'
 import ModalAgregarJugador from '../views/ModalAgregarJugador.vue'
 
 import { api } from '../Enviroments/enviroment'
-import { obtenerEquipoDeEntrenadorService } from '../services/equiposService'
+import { obtenerEquipoDeEntrenadorService, actualizarEquipoService } from '../services/equiposService'
 import { 
     obtenerJugadoresPorEquipoService, 
     crearJugadorService, 
@@ -381,7 +389,7 @@ const activeTab = ref('equipo')
 const jugadoresLibres = ref([])
 const usuarioData = JSON.parse(localStorage.getItem('usuario') || '{}')
 const userName = ref(usuarioData.nombre || 'Entrenador')
-
+const showEditarEquipoModal = ref(false)
 const hasTeam = ref(false)
 const equipoActual = ref(null)
 const estadisticas = ref(null)
@@ -478,9 +486,21 @@ const abandonarEquipoDirigido = async () => {
 }
 
 const openEditTeamModal = () => {
-    alert('Funcionalidad de editar equipo - Próximamente')
+    showEditarEquipoModal.value = true
 }
-
+const closeEditTeamModal = () => {
+    showEditarEquipoModal.value = false
+}
+const saveTeam = async (updatedData) => {
+    try {
+        await actualizarEquipoService(equipoActual.value.id_equipo, updatedData)
+        equipoActual.value = { ...equipoActual.value, ...updatedData }
+        alert('Datos del equipo actualizados correctamente')
+        closeEditTeamModal()
+    } catch (error) {
+        alert(error.response?.data?.error || 'Error al actualizar los datos del equipo')
+    }
+}
 const cargarJugadores = async () => {
     if (equipoActual.value) {
         try {

@@ -48,6 +48,9 @@ const actualizarEquipo = async (req, res, next) => {
             equipo: equipoActualizado
         });
     } catch (error) {
+        if(error.message.includes('DIRECCION_REPETIDA')) {
+            return res.status(400).json({ error: error.message.replace('DIRECCION_REPETIDA: ', '') });
+        }
         next(error);
     }
 };

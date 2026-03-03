@@ -68,8 +68,9 @@ const cargando = ref(true)
 
 const cargarEquiposLibres = async () => {
     try {
-        const response = await api.get('/equipos/libres')
+        const response = await api.get('/equipos/libres/disponibles')
         equiposLibres.value = response.data
+        console.log('Respuesta equipos libres:', response.data)
     } catch (error) {
         console.error("Error al cargar equipos libres:", error)
     } finally {

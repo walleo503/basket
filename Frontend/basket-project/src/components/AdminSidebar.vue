@@ -1,4 +1,5 @@
 <template>
+    <!--ruta del archivo: Frontend/basket-project/src/components/AdminSidebar.vue -->
     <aside class="w-full md:w-64 bg-white shadow-md md:min-h-[calc(100vh-64px)]">
         <div class="p-4">
             <h2 class="text-xs uppercase text-gray-400 font-bold tracking-wider mb-4">Menú de Administración</h2>
