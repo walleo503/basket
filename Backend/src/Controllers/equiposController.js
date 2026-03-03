@@ -2,7 +2,7 @@ const equiposService = require('../Services/equiposServices');
 
 const obtenerEquipos = async (req, res, next) => {
     try {
-        const equipos = await equipoService.obtenerTodos();
+        const equipos = await equiposService.obtenerTodos();
         res.status(200).json(equipos);
     } catch (error) {
         next(error);
@@ -12,7 +12,7 @@ const obtenerEquipos = async (req, res, next) => {
 const obtenerEquipoPorId = async (req, res, next) => {
     try {
         const { id } = req.params;
-        const equipo = await equipoService.obtenerPorId(id);
+        const equipo = await equiposService.obtenerPorId(id);
         
         if (!equipo) {
             return res.status(404).json({ mensaje: 'Equipo no encontrado' });
@@ -25,7 +25,7 @@ const obtenerEquipoPorId = async (req, res, next) => {
 
 const crearEquipo = async (req, res, next) => {
     try {
-        const nuevoEquipo = await equipoService.crear(req.body);
+        const nuevoEquipo = await equiposService.crear(req.body);
         res.status(201).json({
             mensaje: 'Equipo creado exitosamente',
             equipo: nuevoEquipo
@@ -38,7 +38,7 @@ const crearEquipo = async (req, res, next) => {
 const actualizarEquipo = async (req, res, next) => {
     try {
         const { id } = req.params;
-        const equipoActualizado = await equipoService.actualizar(id, req.body);
+        const equipoActualizado = await equiposService.actualizar(id, req.body);
         
         if (!equipoActualizado) {
             return res.status(404).json({ mensaje: 'Equipo no encontrado' });
@@ -55,7 +55,7 @@ const actualizarEquipo = async (req, res, next) => {
 const deshabilitarEquipo = async (req, res, next) => {
     try {
         const { id } = req.params;
-        const equipoDeshabilitado = await equipoService.cambiarEstado(id, false);
+        const equipoDeshabilitado = await equiposService.cambiarEstado(id, false);
         
         res.status(200).json({
             mensaje: 'Equipo deshabilitado correctamente',
@@ -69,7 +69,7 @@ const deshabilitarEquipo = async (req, res, next) => {
 const habilitarEquipo = async (req, res, next) => {
     try {
         const { id } = req.params;
-        const equipoHabilitado = await equipoService.cambiarEstado(id, true);
+        const equipoHabilitado = await equiposService.cambiarEstado(id, true);
         
         res.status(200).json({
             mensaje: 'Equipo habilitado correctamente',
@@ -83,7 +83,7 @@ const habilitarEquipo = async (req, res, next) => {
 const obtenerEquipoDeEntrenador = async (req, res, next) => {
     try {
         const { id } = req.params;
-        const equipo = await equipoService.obtenerPorEntrenador(id);
+        const equipo = await equiposService.obtenerPorEntrenador(id);
         
         if (!equipo) {
             return res.status(404).json({ mensaje: 'No tiene equipo registrado' });
@@ -97,13 +97,53 @@ const obtenerEquipoDeEntrenador = async (req, res, next) => {
 const obtenerEstadisticasEquipo = async (req, res, next) => {
     try {
         const { id } = req.params;
-        const estadisticas = await equipoService.obtenerEstadisticas(id);
+        const estadisticas = await equiposService.obtenerEstadisticas(id);
         res.status(200).json(estadisticas);
     } catch (error) {
         next(error);
     }
 };
+const obtenerEquiposLibres = async (req, res, next) => {
+    try {
+        const equipos = await equiposService.obtenerEquiposLibres();
+        res.status(200).json(equipos);
+    } catch (error) {
+        next(error);
+    }
+};
 
+const abandonarEquipo = async (req, res, next) => {
+    try {
+        const { id } = req.params;
+        await equiposService.abandonarEquipo(id);
+        res.status(200).json({ mensaje: 'Has abandonado el equipo exitosamente' });
+    } catch (error) {
+        next(error);
+    }
+};
+
+const unirseEquipo = async (req, res, next) => {
+    try {
+        const { id } = req.params; 
+        const { id_entrenador } = req.body;
+        
+        if (!id_entrenador) {
+            return res.status(400).json({ error: 'ID del entrenador es requerido' });
+        }
+        const equipoExistente = await equiposService.obtenerPorEntrenador(id_entrenador);
+        if (equipoExistente) {
+            return res.status(400).json({ error: 'Ya diriges un equipo actualmente. Debes abandonarlo primero.' });
+        }
+
+        const equipoAsignado = await equiposService.unirseEquipo(id, id_entrenador);
+        res.status(200).json({ 
+            mensaje: 'Te has unido al equipo exitosamente',
+            equipo: equipoAsignado 
+        });
+    } catch (error) {
+        next(error);
+    }
+};
 module.exports = {
     obtenerEquipos,
     obtenerEquipoPorId,
@@ -112,5 +152,8 @@ module.exports = {
     deshabilitarEquipo,
     habilitarEquipo,
     obtenerEquipoDeEntrenador,
-    obtenerEstadisticasEquipo
+    obtenerEstadisticasEquipo,
+    obtenerEquiposLibres,
+    abandonarEquipo,
+    unirseEquipo
 };

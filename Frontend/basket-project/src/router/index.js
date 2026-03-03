@@ -5,6 +5,7 @@ import CreateTeam from '../views/CreateTeam.vue'
 import AdminDashboard from '../views/AdminDashboard.vue'
 import Espectadores from '../views/Espectadores.vue'
 import ArbitroDashboard from '../views/ArbitroDashboard.vue' // ← Agregar esta vista
+import EquiposLibres from '../views/EquiposLibres.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -18,6 +19,12 @@ const router = createRouter({
       path: '/login',
       name: 'Login',
       component: Login
+    },
+    {
+      path: '/equipos-libres',
+      name: 'EquiposLibres',
+      component: EquiposLibres,
+      meta: { requiresAuth: true, rolAceptado: 'entrenador' }
     },
     {
       path: '/crear-equipo',
@@ -38,7 +45,7 @@ const router = createRouter({
       meta: { requiresAuth: true, rolAceptado: 'entrenador' }
     },
     {
-      path: '/arbitro/dashboard', // ← Agregar esta ruta
+      path: '/arbitro/dashboard', 
       name: 'ArbitroDashboard',
       component: ArbitroDashboard,
       meta: { requiresAuth: true, rolAceptado: 'arbitro' }

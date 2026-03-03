@@ -279,7 +279,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { crearEquipoService } from '../services/equipossService'
+import { crearEquipoService } from '../services/equiposService'
 import { obtenerCanchasService, crearCanchaService } from '../services/canchaService'
 
 const router = useRouter()

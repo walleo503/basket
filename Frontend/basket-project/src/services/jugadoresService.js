@@ -20,7 +20,6 @@ export const verificarSancionService = async (idJugador) => {
     return response.data
 }
 
-import { api } from '../Enviroments/enviroment'
 
 export const obtenerJugadoresPorEquipoService = async (idEquipo) => {
     const response = await api.get(`/jugadores/equipo/${idEquipo}`)

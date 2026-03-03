@@ -122,8 +122,6 @@ const eliminar = async (id_equipo) => {
     const { rows } = await pool.query(query, [id_equipo]);
     return rows[0];
 };
-
-// Estadísticas del equipo
 const obtenerEstadisticas = async (id_equipo) => {
     const query = `
         SELECT 
@@ -141,7 +139,39 @@ const obtenerEstadisticas = async (id_equipo) => {
     const { rows } = await pool.query(query, [id_equipo]);
     return rows[0] || { jugadores_activos: 0, partidos_jugados: 0, victorias: 0 };
 };
-
+const obtenerEquiposLibres = async () => {
+    const query = `
+        SELECT e.id_equipo, e.nombre_oficial, e.siglas, cl.descripcion AS clasificacion, 
+            c.nombre_cancha, c.direccion AS direccion_cancha
+        FROM equipos e
+        LEFT JOIN clasificacion_equipo cl ON e.id_clasificacion = cl.id_clasificacion
+        LEFT JOIN canchas c ON e.id_cancha = c.id_cancha
+        WHERE e.id_entrenador IS NULL AND e.activo = true
+        ORDER BY e.nombre_oficial ASC;
+    `;
+    const { rows } = await pool.query(query);
+    return rows;
+};
+const abandonarEquipo = async (id_equipo) => {
+    const query = `
+        UPDATE equipos 
+        SET id_entrenador = NULL 
+        WHERE id_equipo = $1 
+        RETURNING *;
+    `;
+    const { rows } = await pool.query(query, [id_equipo]);
+    return rows[0];
+};
+const unirseEquipo = async (id_equipo, id_entrenador) => {
+    const query = `
+        UPDATE equipos 
+        SET id_entrenador = $1 
+        WHERE id_equipo = $2 
+        RETURNING *;
+    `;
+    const { rows } = await pool.query(query, [id_entrenador, id_equipo]);
+    return rows[0];
+};
 module.exports = {
     obtenerTodos,
     obtenerPorId,
@@ -150,5 +180,8 @@ module.exports = {
     actualizar,
     cambiarEstado,
     eliminar,
-    obtenerEstadisticas
+    obtenerEstadisticas,
+    obtenerEquiposLibres,
+    abandonarEquipo,
+    unirseEquipo
 };

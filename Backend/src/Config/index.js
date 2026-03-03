@@ -5,7 +5,6 @@ const errorHandler = require('../Middleware/errorHandler');
 const app = express();
 const cors = require('cors');
 
-// 🟢 IMPORTACIONES CORREGIDAS - nombres exactos de archivos
 const usuarioRoutes = require('../Routes/usuarioRoutes');
 const equipoRoutes = require('../Routes/equiposRoutes');      // NOTA: es equiposRoutes.js (con 's')
 const canchaRoutes = require('../Routes/canchaRoutes');       // canchaRoutes.js

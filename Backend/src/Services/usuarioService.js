@@ -3,7 +3,7 @@ const pool = require('../Config/db');
 const bcrypt = require('bcrypt');
 
 const obtenerTodos = async () => {
-    // Hacemos JOIN con roles y usamos alias (AS email) para que el frontend lo entienda sin cambiar nada
+    
     const query = `
         SELECT u.id_usuario, u.nombre, u.apellido, u.correo AS email, r.nombre_rol AS rol, u.activo, u.fecha_registro
         FROM usuarios u
@@ -47,18 +47,15 @@ const login = async (correo, contrasena) => {
             WHERE u.correo = $1 AND u.activo = TRUE`,
         [correo]
     );
-
     if (resultado.rows.length === 0) {
         const error = new Error('Correo o contraseña incorrectos');
         error.status = 401;
         throw error;
     }
-
     const usuario = resultado.rows[0];
+    const passwordEsValida = await bcrypt.compare(contrasena, usuario.contrasena);
 
-    // 🔴 CAMBIO AQUÍ: Comparación directa (texto plano)
-    // Antes usaba bcrypt.compare, ahora compara directamente
-    if (contrasena !== usuario.contrasena) {
+    if (!passwordEsValida) {
         const error = new Error('Correo o contraseña incorrectos');
         error.status = 401;
         throw error;
