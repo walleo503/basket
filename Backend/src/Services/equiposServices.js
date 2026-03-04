@@ -5,10 +5,12 @@ const obtenerTodos = async () => {
         SELECT e.id_equipo, e.nombre_oficial, e.siglas, 
                cl.descripcion AS clasificacion,
                c.nombre_cancha, c.direccion AS direccion_cancha, 
-               e.id_entrenador, e.activo
+               e.id_entrenador, e.activo, e.id_clasificacion,
+               n.descripcion AS nivel
         FROM equipos e
         LEFT JOIN clasificacion_equipo cl ON e.id_clasificacion = cl.id_clasificacion
         LEFT JOIN canchas c ON e.id_cancha = c.id_cancha
+        LEFT JOIN nivel_competencia n ON e.id_nivel = n.id_nivel
         ORDER BY e.nombre_oficial ASC;
     `;
     const { rows } = await pool.query(query);
@@ -18,10 +20,12 @@ const obtenerTodos = async () => {
 const obtenerPorId = async (id_equipo) => {
     const query = `
         SELECT e.*, cl.descripcion AS clasificacion,
-               c.nombre_cancha, c.direccion AS direccion_cancha
+               c.nombre_cancha, c.direccion AS direccion_cancha,
+               n.descripcion AS nivel
         FROM equipos e
         LEFT JOIN clasificacion_equipo cl ON e.id_clasificacion = cl.id_clasificacion
         LEFT JOIN canchas c ON e.id_cancha = c.id_cancha
+        LEFT JOIN nivel_competencia n ON e.id_nivel = n.id_nivel
         WHERE e.id_equipo = $1;
     `;
     const { rows } = await pool.query(query, [id_equipo]);
@@ -56,43 +60,79 @@ const obtenerEquiposPorEntrenador = async (id_entrenador) => {
     return rows;
 };
 
+const verificarNombreExistente = async (nombre_oficial, excluirId = null) => {
+    let query = `SELECT id_equipo FROM equipos WHERE LOWER(nombre_oficial) = LOWER($1)`;
+    const params = [nombre_oficial];
+    if (excluirId) {
+        query += ` AND id_equipo != $2`;
+        params.push(excluirId);
+    }
+    const { rows } = await pool.query(query, params);
+    return rows.length > 0;
+};
+
+// Palabras no permitidas en nombres de equipos
+const PALABRAS_PROHIBIDAS = [
+    'puta', 'mierda', 'cabron', 'pendejo', 'idiota', 'estupido',
+    'imbecil', 'marica', 'perra', 'bastardo', 'culero', 'verga',
+    'chingada', 'coño', 'joder', 'puto', 'hijo de puta'
+];
+
+const contienePalabraProhibida = (texto) => {
+    const textoNorm = texto.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    return PALABRAS_PROHIBIDAS.some(p => textoNorm.includes(p));
+};
+
 const crear = async (datosEquipo) => {
-    const { nombre_oficial, siglas, id_clasificacion, id_entrenador, id_cancha, direccion_cancha } = datosEquipo;
-    
+    const { nombre_oficial, siglas, id_clasificacion, id_entrenador, id_cancha, direccion_cancha, id_nivel } = datosEquipo;
+
+    // Validar nombre duplicado
+    const existe = await verificarNombreExistente(nombre_oficial);
+    if (existe) throw { status: 400, message: 'Ya existe un equipo con ese nombre' };
+
+    // Validar palabras prohibidas
+    if (contienePalabraProhibida(nombre_oficial)) {
+        throw { status: 400, message: 'El nombre del equipo contiene palabras no permitidas' };
+    }
+
     const query = `
-        INSERT INTO equipos (nombre_oficial, siglas, id_clasificacion, id_cancha, id_entrenador, direccion_cancha)
-        VALUES ($1, $2, $3, $4, $5, $6) RETURNING *;
+        INSERT INTO equipos (nombre_oficial, siglas, id_clasificacion, id_cancha, id_entrenador, direccion_cancha, id_nivel)
+        VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *;
     `;
     const { rows } = await pool.query(query, [
-        nombre_oficial, siglas, id_clasificacion, id_cancha, id_entrenador, direccion_cancha
+        nombre_oficial, siglas, id_clasificacion, id_cancha || null, id_entrenador, direccion_cancha, id_nivel || null
     ]);
     return rows[0];
 };
 
 const actualizar = async (id_equipo, datosEquipo) => {
-    const { nombre_oficial, siglas, id_clasificacion, id_cancha, direccion_cancha } = datosEquipo;
-    
+    const { nombre_oficial, siglas, id_clasificacion, id_cancha, direccion_cancha, id_nivel } = datosEquipo;
+
+    if (nombre_oficial) {
+        const existe = await verificarNombreExistente(nombre_oficial, id_equipo);
+        if (existe) throw { status: 400, message: 'Ya existe un equipo con ese nombre' };
+        if (contienePalabraProhibida(nombre_oficial)) {
+            throw { status: 400, message: 'El nombre del equipo contiene palabras no permitidas' };
+        }
+    }
+
     const query = `
         UPDATE equipos 
         SET nombre_oficial = COALESCE($1, nombre_oficial),
             siglas = COALESCE($2, siglas),
             id_clasificacion = COALESCE($3, id_clasificacion),
             id_cancha = COALESCE($4, id_cancha),
-            direccion_cancha = COALESCE($5, direccion_cancha)
-        WHERE id_equipo = $6
+            direccion_cancha = COALESCE($5, direccion_cancha),
+            id_nivel = COALESCE($6, id_nivel)
+        WHERE id_equipo = $7
         RETURNING *;
     `;
-    const { rows } = await pool.query(query, [nombre_oficial, siglas, id_clasificacion, id_cancha, direccion_cancha, id_equipo]);
+    const { rows } = await pool.query(query, [nombre_oficial, siglas, id_clasificacion, id_cancha, direccion_cancha, id_nivel, id_equipo]);
     return rows[0];
 };
 
 const cambiarEstado = async (id_equipo, activo) => {
-    const query = `
-        UPDATE equipos 
-        SET activo = $1
-        WHERE id_equipo = $2
-        RETURNING *;
-    `;
+    const query = `UPDATE equipos SET activo = $1 WHERE id_equipo = $2 RETURNING *;`;
     const { rows } = await pool.query(query, [activo, id_equipo]);
     return rows[0];
 };
@@ -118,12 +158,7 @@ const obtenerEstadisticas = async (id_equipo) => {
 };
 
 module.exports = {
-    obtenerTodos,
-    obtenerPorId,
-    obtenerPorEntrenador,
-    obtenerEquiposPorEntrenador,
-    crear,
-    actualizar,
-    cambiarEstado,
-    obtenerEstadisticas
+    obtenerTodos, obtenerPorId, obtenerPorEntrenador,
+    obtenerEquiposPorEntrenador, crear, actualizar,
+    cambiarEstado, obtenerEstadisticas
 };

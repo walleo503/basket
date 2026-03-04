@@ -13,11 +13,9 @@ const obtenerJugadoresPorEquipo = async (req, res, next) => {
 const crearJugador = async (req, res, next) => {
     try {
         const nuevoJugador = await jugadoresService.crear(req.body);
-        res.status(201).json({
-            mensaje: 'Jugador agregado exitosamente',
-            jugador: nuevoJugador
-        });
+        res.status(201).json({ mensaje: 'Jugador agregado exitosamente', jugador: nuevoJugador });
     } catch (error) {
+        if (error.status) return res.status(error.status).json({ error: error.message });
         next(error);
     }
 };
@@ -26,24 +24,19 @@ const actualizarJugador = async (req, res, next) => {
     try {
         const { id } = req.params;
         const jugadorActualizado = await jugadoresService.actualizar(id, req.body);
-        
-        res.status(200).json({
-            mensaje: 'Jugador actualizado exitosamente',
-            jugador: jugadorActualizado
-        });
+        res.status(200).json({ mensaje: 'Jugador actualizado exitosamente', jugador: jugadorActualizado });
     } catch (error) {
+        if (error.status) return res.status(error.status).json({ error: error.message });
         next(error);
     }
 };
 
-const eliminarJugador = async (req, res, next) => {
+// Renombrado a deshabilitar (ya no elimina, solo pone activo = false)
+const deshabilitarJugador = async (req, res, next) => {
     try {
         const { id, idEquipo } = req.params;
-        const resultado = await jugadoresService.eliminar(id, idEquipo);
-        
-        res.status(200).json({
-            mensaje: 'Jugador eliminado del equipo'
-        });
+        await jugadoresService.deshabilitar(id, idEquipo);
+        res.status(200).json({ mensaje: 'Jugador deshabilitado del equipo' });
     } catch (error) {
         next(error);
     }
@@ -53,5 +46,5 @@ module.exports = {
     obtenerJugadoresPorEquipo,
     crearJugador,
     actualizarJugador,
-    eliminarJugador
+    deshabilitarJugador
 };
