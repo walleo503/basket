@@ -33,3 +33,7 @@ export const cambiarEstadoEquipoService = async (id, activo) => {
     const response = await api.patch(`/equipos/${id}/${endpoint}`)
     return response.data
 }
+export const actualizarEquipoService = async (idEquipo, datosEquipo) => {
+    const response = await api.put(`/equipos/${idEquipo}`, datosEquipo)
+    return response.data
+}

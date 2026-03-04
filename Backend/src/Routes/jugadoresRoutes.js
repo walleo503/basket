@@ -2,8 +2,10 @@ const express = require('express');
 const router = express.Router();
 const jugadoresController = require('../Controllers/jugadoresController');
 
+router.get('/libres/disponibles', jugadoresController.obtenerJugadoresLibres);
 router.get('/equipo/:idEquipo', jugadoresController.obtenerJugadoresPorEquipo);
 router.post('/', jugadoresController.crearJugador);
+router.post('/:id/vincular', jugadoresController.vincularJugador);
 router.put('/:id', jugadoresController.actualizarJugador);
 // Ruta actualizada: deshabilitar en vez de eliminar
 router.patch('/:id/equipo/:idEquipo/deshabilitar', jugadoresController.deshabilitarJugador);

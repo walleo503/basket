@@ -1,6 +1,7 @@
+<!--ruta: /views/EntrenadorDashboard.vue-->
 <template>
+    
     <div>
-        <!-- Contenido principal -->
         <div class="min-h-screen bg-gray-50">
             <nav class="bg-white shadow-md">
                 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -12,12 +13,11 @@
                         </div>
                         <div class="hidden md:block">
                             <div class="ml-10 flex items-center space-x-4">
-                                <button @click="navigateTo('perfil')"
-                                    class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">
+                                <span class="text-gray-900 px-3 py-2 text-sm font-medium">
                                     {{ userName }}
-                                </button>
+                                </span>
                                 <button @click="logout"
-                                    class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">
+                                    class="text-gray-600 hover:text-red-600 px-3 py-2 rounded-md text-sm font-medium transition-colors">
                                     Cerrar Sesión
                                 </button>
                             </div>
@@ -28,11 +28,12 @@
 
             <div class="flex flex-col md:flex-row min-h-[calc(100vh-64px)]">
                 
-                <Sidebar :activeTab="activeTab" @navigate="navigateTo" />
+                <Sidebar :activeTab="activeTab" :hasTeam="hasTeam" @navigate="navigateTo" />
 
                 <main class="flex-1 overflow-auto">
                     <div class="py-6 px-4 sm:px-6 lg:px-8">
                         
+<<<<<<< HEAD
                         <!-- ===================================================== -->
                         <!-- SELECTOR DE EQUIPOS (VISIBLE EN TODAS LAS PESTAÑAS) -->
                         <!-- ===================================================== -->
@@ -70,6 +71,11 @@
                             <div v-if="equipos.length > 0" class="space-y-6">
                                 <!-- Cabecera del equipo actual -->
                                 <div class="flex justify-between items-end">
+=======
+                        <div v-if="activeTab === 'equipo'" class="space-y-6">
+                            <div v-if="hasTeam" class="space-y-6">
+                                <div class="flex justify-between items-end bg-white p-6 rounded-lg shadow-sm border border-gray-100">
+>>>>>>> e3c36add34bb575a0def27e2705b9fc51b08c690
                                     <div>
                                         <h2 class="text-3xl font-bold text-gray-900">
                                             {{ equipoActual ? equipoActual.nombre_oficial : 'Mi Equipo' }} 
@@ -85,29 +91,49 @@
                                         </p>
                                     </div>
                                     <div class="flex space-x-3">
+<<<<<<< HEAD
                                         <button @click="navigateTo('jugadores')" 
                                             class="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors shadow-sm flex items-center">
                                             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                             </svg>
                                             Editar Equipo
+=======
+                                        <button @click="openEditTeamModal" 
+                                            class="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors shadow-sm">
+                                            Editar Datos
+>>>>>>> e3c36add34bb575a0def27e2705b9fc51b08c690
                                         </button>
                                         <button @click="toggleTeamStatus(equipoActual)" 
                                             :class="[
+<<<<<<< HEAD
                                                 'px-4 py-2 rounded-md transition-colors shadow-sm flex items-center',
+=======
+                                                'px-4 py-2 rounded-md transition-colors shadow-sm font-medium',
+>>>>>>> e3c36add34bb575a0def27e2705b9fc51b08c690
                                                 equipoActual?.activo 
-                                                    ? 'bg-yellow-500 text-white hover:bg-yellow-600' 
-                                                    : 'bg-green-500 text-white hover:bg-green-600'
+                                                    ? 'bg-yellow-100 text-yellow-800 hover:bg-yellow-200 border border-yellow-300' 
+                                                    : 'bg-green-100 text-green-800 hover:bg-green-200 border border-green-300'
                                             ]">
+<<<<<<< HEAD
                                             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path v-if="equipoActual?.activo" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
                                                 <path v-else stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                                             </svg>
                                             {{ equipoActual?.activo ? 'Deshabilitar' : 'Habilitar' }}
+=======
+                                            {{ equipoActual?.activo ? 'Pausar Equipo' : 'Reactivar Equipo' }}
+                                        </button>
+                                        <button @click="abandonarEquipoDirigido" 
+                                            class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors shadow-sm flex items-center">
+                                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
+                                            Abandonar
+>>>>>>> e3c36add34bb575a0def27e2705b9fc51b08c690
                                         </button>
                                     </div>
                                 </div>
 
+<<<<<<< HEAD
                                 <!-- Tarjetas de estadísticas -->
                                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                                     <div class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
@@ -120,31 +146,22 @@
                                                 <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z" />
                                             </svg>
                                         </div>
+=======
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                    <div class="bg-white rounded-lg shadow-sm border border-gray-100 p-6">
+                                        <p class="text-gray-600 text-sm">Jugadores Activos</p>
+                                        <p class="text-3xl font-bold text-gray-900">{{ estadisticas?.jugadores_activos || 0 }}</p>
+>>>>>>> e3c36add34bb575a0def27e2705b9fc51b08c690
                                     </div>
-
-                                    <div class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
-                                        <div class="flex items-center justify-between">
-                                            <div>
-                                                <p class="text-gray-600 text-sm">Partidos Jugados</p>
-                                                <p class="text-3xl font-bold text-gray-900">{{ estadisticas?.partidos_jugados || 0 }}</p>
-                                            </div>
-                                            <svg class="h-12 w-12 text-green-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                                                <path fill-rule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-2.77 3.066 3.066 0 00-3.58 3.53 3.066 3.066 0 001.835-.79zm12 0a3.066 3.066 0 001.745-2.77 3.066 3.066 0 00-3.58 3.53 3.066 3.066 0 001.835-.79zM9 12a3 3 0 11-6 0 3 3 0 016 0zm9 0a3 3 0 11-6 0 3 3 0 016 0zm-13.5 5.5h3v3h-3v-3zm9 0h3v3h-3v-3z" clip-rule="evenodd" />
-                                            </svg>
-                                        </div>
+                                    <div class="bg-white rounded-lg shadow-sm border border-gray-100 p-6">
+                                        <p class="text-gray-600 text-sm">Partidos Jugados</p>
+                                        <p class="text-3xl font-bold text-gray-900">{{ estadisticas?.partidos_jugados || 0 }}</p>
                                     </div>
-
-                                    <div class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
-                                        <div class="flex items-center justify-between">
-                                            <div>
-                                                <p class="text-gray-600 text-sm">Victorias</p>
-                                                <p class="text-3xl font-bold text-gray-900">{{ estadisticas?.victorias || 0 }}</p>
-                                            </div>
-                                            <svg class="h-12 w-12 text-yellow-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                                            </svg>
-                                        </div>
+                                    <div class="bg-white rounded-lg shadow-sm border border-gray-100 p-6">
+                                        <p class="text-gray-600 text-sm">Victorias</p>
+                                        <p class="text-3xl font-bold text-green-600">{{ estadisticas?.victorias || 0 }}</p>
                                     </div>
+<<<<<<< HEAD
 
                                     <div class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
                                         <div class="flex items-center justify-between">
@@ -296,12 +313,273 @@
                         <!-- Sección Perfil (sin cambios) -->
                         <div v-if="activeTab === 'perfil'" class="space-y-6">
                             <!-- ... contenido existente de perfil ... -->
+=======
+                                </div>
+                            </div>
+
+                            <div v-else class="flex flex-col items-center justify-center py-20 bg-white rounded-lg shadow-md border-2 border-dashed border-gray-200">
+                                <div class="w-24 h-24 bg-indigo-50 rounded-full flex items-center justify-center mb-6">
+                                    <svg class="h-12 w-12 text-indigo-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+                                    </svg>
+                                </div>
+                                <h2 class="text-2xl font-bold text-gray-900 mb-2">Aún no diriges ningún equipo</h2>
+                                <p class="text-gray-600 mb-8 text-center max-w-md">Crea un equipo nuevo o únete a uno que no tenga entrenador.</p>
+                                
+                                <div class="flex space-x-4">
+                                    <button @click="$router.push('/crear-equipo')" class="px-6 py-3 bg-indigo-600 text-white font-semibold rounded-lg hover:bg-indigo-700 transition shadow-sm flex items-center">
+                                        Crear Equipo Nuevo
+                                    </button>
+                                    <button @click="irAEquiposLibres" class="px-6 py-3 bg-white border border-gray-300 text-gray-700 font-semibold rounded-lg hover:bg-gray-50 transition shadow-sm flex items-center">
+                                        Unirme a un Equipo
+                                    </button>
+                                </div>
+                            </div>
                         </div>
+
+                        <div v-if="activeTab === 'jugadores'" class="space-y-6">
+                            <div v-if="hasTeam">
+                                <div class="flex justify-between items-center mb-6">
+                                    <div>
+                                        <h2 class="text-3xl font-bold text-gray-900">Plantilla de Jugadores</h2>
+                                        <p class="mt-2 text-gray-600">Gestiona los jugadores activos de tu equipo</p>
+                                    </div>
+                                    <button @click="openAddPlayerModal"
+                                        class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors shadow-sm font-medium">
+                                        + Fichar Jugador
+                                    </button>
+                                </div>
+
+                                <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+                                    <div v-if="players.length === 0" class="text-center py-12">
+                                        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+                                        </svg>
+                                        <h3 class="mt-2 text-sm font-medium text-gray-900">Plantilla vacía</h3>
+                                        <p class="mt-1 text-sm text-gray-500">Comienza agregando jugadores a tu equipo.</p>
+                                    </div>
+
+                                    <table v-else class="min-w-full divide-y divide-gray-200">
+                                        <thead class="bg-gray-50">
+                                            <tr>
+                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">#</th>
+                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nombre</th>
+                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Posición</th>
+                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Rol de Equipo</th>
+                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Capitán</th>
+                                                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class="bg-white divide-y divide-gray-200">
+                                            <tr v-for="player in players" :key="player.id_jugador" class="hover:bg-gray-50">
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-indigo-600">
+                                                    {{ player.numero_camiseta }}
+                                                </td>
+                                                <td class="px-6 py-4 whitespace-nowrap">
+                                                    <div class="text-sm font-medium text-gray-900">{{ player.nombre }} {{ player.apellido }}</div>
+                                                </td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                                                    {{ player.posicion }}
+                                                </td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                                    <span :class="player.rol_equipo === 'Titular' ? 'text-indigo-600' : 'text-gray-500'">
+                                                        {{ player.rol_equipo || 'Suplente' }}
+                                                    </span>
+                                                </td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm">
+                                                    <span v-if="player.es_capitan" class="px-2 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs font-bold border border-yellow-200">
+                                                        Capitán
+                                                    </span>
+                                                </td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-right">
+                                                    <button @click="editPlayer(player)" class="text-indigo-600 hover:text-indigo-900 mr-4">
+                                                        Editar
+                                                    </button>
+                                                    <button @click="confirmDeletePlayer(player)" class="text-red-600 hover:text-red-900">
+                                                        Dar de Baja
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            
+                            <div v-else class="flex flex-col items-center justify-center py-20 bg-white rounded-lg shadow-md border-2 border-dashed border-gray-200">
+                                <div class="w-24 h-24 bg-indigo-50 rounded-full flex items-center justify-center mb-6">
+                                    <svg class="h-12 w-12 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                                    </svg>
+                                </div>
+                                <h2 class="text-2xl font-bold text-gray-900 mb-2">Sección Bloqueada</h2>
+                                <p class="text-gray-600 mb-8 text-center max-w-md">Para gestionar jugadores, primero debes tener un equipo asignado.</p>
+                                <div class="flex space-x-4">
+                                    <button @click="$router.push('/crear-equipo')" class="px-6 py-3 bg-indigo-600 text-white font-semibold rounded-lg hover:bg-indigo-700 transition shadow-sm">
+                                        Crear Equipo
+                                    </button>
+                                    <button @click="irAEquiposLibres" class="px-6 py-3 bg-white border border-gray-300 text-gray-700 font-semibold rounded-lg hover:bg-gray-50 transition shadow-sm">
+                                        Unirme a Equipo
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div v-if="activeTab === 'alineacion'" class="space-y-6">
+                            
+                            <div v-if="hasTeam" class="space-y-6">
+                                <div class="flex justify-between items-center">
+                                    <div>
+                                        <h2 class="text-3xl font-bold text-gray-900">Alineación Base (Quinteto)</h2>
+                                        <p class="mt-2 text-gray-600">Define los 5 titulares que iniciarán por defecto los partidos.</p>
+                                    </div>
+                                    <div :class="titularesCount === 5 ? 'bg-green-100 text-green-800 border-green-300' : 'bg-yellow-100 text-yellow-800 border-yellow-300'" 
+                                         class="px-4 py-2 rounded-md font-bold shadow-sm border">
+                                        Titulares: {{ titularesCount }} / 5
+                                    </div>
+                                </div>
+
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
+                                    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-5">
+                                        <h3 class="text-lg font-bold text-gray-900 mb-4 border-b pb-2 flex items-center">
+                                            <svg class="w-5 h-5 mr-2 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                                            Titulares (En Cancha)
+                                        </h3>
+                                        <ul class="space-y-3">
+                                            <li v-for="player in titulares" :key="player.id_jugador" 
+                                                class="flex justify-between items-center p-3 bg-indigo-50 border border-indigo-100 rounded-lg transition-all hover:shadow-md">
+                                                <div class="flex items-center">
+                                                    <span class="w-8 h-8 rounded-full bg-indigo-600 text-white flex items-center justify-center font-bold text-sm mr-3">
+                                                        {{ player.numero_camiseta }}
+                                                    </span>
+                                                    <div>
+                                                        <p class="font-bold text-indigo-900 leading-tight">
+                                                            {{ player.nombre }} {{ player.apellido }}
+                                                            <span v-if="player.es_capitan" class="ml-1 text-xs px-1.5 py-0.5 bg-yellow-400 text-yellow-900 rounded-sm">C</span>
+                                                        </p>
+                                                        <p class="text-xs text-indigo-600 font-medium">{{ player.posicion }}</p>
+                                                    </div>
+                                                </div>
+                                                <button @click="cambiarRol(player, 'Suplente')" 
+                                                        class="px-3 py-1 text-xs font-bold bg-white text-red-600 border border-red-200 rounded hover:bg-red-50 transition-colors">
+                                                    Mover a Banca
+                                                </button>
+                                            </li>
+                                            <li v-if="titulares.length === 0" class="text-center py-8 text-gray-500 text-sm border-2 border-dashed border-gray-200 rounded-lg">
+                                                Tu cancha está vacía. Añade titulares desde la banca.
+                                            </li>
+                                        </ul>
+                                    </div>
+
+                                    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-5">
+                                        <h3 class="text-lg font-bold text-gray-900 mb-4 border-b pb-2 flex items-center">
+                                            <svg class="w-5 h-5 mr-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 002-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+                                            Suplentes (Banquillo)
+                                        </h3>
+                                        <ul class="space-y-3">
+                                            <li v-for="player in suplentes" :key="player.id_jugador" 
+                                                class="flex justify-between items-center p-3 bg-gray-50 border border-gray-200 rounded-lg transition-all hover:bg-gray-100">
+                                                <div class="flex items-center">
+                                                    <span class="w-8 h-8 rounded-full bg-gray-200 text-gray-700 flex items-center justify-center font-bold text-sm mr-3">
+                                                        {{ player.numero_camiseta }}
+                                                    </span>
+                                                    <div>
+                                                        <p class="font-bold text-gray-900 leading-tight">
+                                                            {{ player.nombre }} {{ player.apellido }}
+                                                            <span v-if="player.es_capitan" class="ml-1 text-xs px-1.5 py-0.5 bg-yellow-400 text-yellow-900 rounded-sm">C</span>
+                                                        </p>
+                                                        <p class="text-xs text-gray-500 font-medium">{{ player.posicion }}</p>
+                                                    </div>
+                                                </div>
+                                                <button @click="cambiarRol(player, 'Titular')" 
+                                                        :disabled="titularesCount >= 5"
+                                                        :class="titularesCount >= 5 ? 'opacity-50 cursor-not-allowed bg-gray-100 text-gray-400' : 'bg-white text-indigo-600 border border-indigo-200 hover:bg-indigo-50'"
+                                                        class="px-3 py-1 text-xs font-bold rounded transition-colors">
+                                                    Hacer Titular
+                                                </button>
+                                            </li>
+                                            <li v-if="suplentes.length === 0" class="text-center py-8 text-gray-500 text-sm border-2 border-dashed border-gray-200 rounded-lg">
+                                                No tienes jugadores en el banquillo.
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div v-else class="flex flex-col items-center justify-center py-20 bg-white rounded-lg shadow-md border-2 border-dashed border-gray-200">
+                                <div class="w-24 h-24 bg-indigo-50 rounded-full flex items-center justify-center mb-6">
+                                    <svg class="h-12 w-12 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                                    </svg>
+                                </div>
+                                <h2 class="text-2xl font-bold text-gray-900 mb-2">Sección Bloqueada</h2>
+                                <p class="text-gray-600 mb-8 text-center max-w-md">Para gestionar tu alineación titular, primero debes tener un equipo asignado.</p>
+                                
+                                <div class="flex space-x-4">
+                                    <button @click="$router.push('/crear-equipo')" class="px-6 py-3 bg-indigo-600 text-white font-semibold rounded-lg hover:bg-indigo-700 transition shadow-sm">
+                                        Crear Equipo
+                                    </button>
+                                    <button @click="irAEquiposLibres" class="px-6 py-3 bg-white border border-gray-300 text-gray-700 font-semibold rounded-lg hover:bg-gray-50 transition shadow-sm">
+                                        Unirme a Equipo
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div v-if="activeTab === 'torneo'" class="space-y-6">
+                            <div>
+                                <h2 class="text-3xl font-bold text-gray-900">Torneo Actual</h2>
+                                <p class="mt-2 text-gray-600">Información del torneo y clasificaciones (Próximamente)</p>
+                            </div>
+                            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-10 text-center">
+                                <p class="text-gray-500">Aún no hay datos de torneos disponibles.</p>
+                            </div>
+>>>>>>> e3c36add34bb575a0def27e2705b9fc51b08c690
+                        </div>
+
+                        <div v-if="activeTab === 'perfil'" class="space-y-6 max-w-3xl mx-auto">
+                            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-8">
+                                <h2 class="text-2xl font-bold text-gray-900 mb-6 flex items-center">
+                                    <svg class="w-6 h-6 mr-3 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                                    Mi Perfil Personal
+                                </h2>
+                                
+                                <form @submit.prevent="guardarPerfil" class="space-y-5">
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700 mb-1">Nombre</label>
+                                            <input type="text" v-model="perfilForm.nombre" required
+                                                class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 outline-none transition-all">
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700 mb-1">Apellido</label>
+                                            <input type="text" v-model="perfilForm.apellido" required
+                                                class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 outline-none transition-all">
+                                        </div>
+                                    </div>
+                                    
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Correo Electrónico</label>
+                                        <input type="email" v-model="perfilForm.correo" required
+                                            class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 outline-none transition-all bg-gray-50">
+                                    </div>
+
+                                    <div class="pt-4 flex justify-end">
+                                        <button type="submit" :disabled="guardandoPerfil"
+                                            class="px-6 py-2.5 bg-indigo-600 text-white font-medium rounded-md hover:bg-indigo-700 transition-colors shadow-sm disabled:opacity-50 flex items-center">
+                                            <span v-if="guardandoPerfil">Guardando...</span>
+                                            <span v-else>Actualizar Perfil</span>
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+
                     </div>
                 </main>
             </div>
         </div>
 
+<<<<<<< HEAD
         <!-- Modal para crear/editar equipo -->
         <ModalEditarEquipo
             :show="showTeamModal"
@@ -311,16 +589,26 @@
         />
 
         <!-- Modal Agregar/Editar Jugador -->
+=======
+>>>>>>> e3c36add34bb575a0def27e2705b9fc51b08c690
         <ModalAgregarJugador 
             :show="showPlayerModal"
             :jugador="selectedPlayer"
+            :jugadoresLibres="jugadoresLibres"
             @close="closePlayerModal"
             @save="savePlayer"
+        />
+        <EditarEquipo 
+            :show="showEditarEquipoModal"
+            :equipo="equipoActual"
+            @close="showEditarEquipoModal = false"
+            @save="saveTeam"
         />
     </div>
 </template>
 
 <script setup>
+<<<<<<< HEAD
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import Sidebar from '../components/Sidebar.vue'
@@ -334,15 +622,29 @@ import {
     actualizarEquipoService,
     cambiarEstadoEquipoService
 } from '../services/equiposService'
+=======
+import { ref, onMounted, computed } from 'vue'
+import { useRouter } from 'vue-router'
+import Sidebar from '../components/Sidebar.vue'
+import EditarEquipo from '../modals/EditarEquipo.vue'
+import ModalAgregarJugador from '../views/ModalAgregarJugador.vue'
+
+import { api } from '../Enviroments/enviroment'
+import { obtenerEquipoDeEntrenadorService, actualizarEquipoService } from '../services/equiposService'
+>>>>>>> e3c36add34bb575a0def27e2705b9fc51b08c690
 import { 
     obtenerJugadoresPorEquipoService, 
     crearJugadorService, 
     actualizarJugadorService, 
-    eliminarJugadorService 
+    eliminarJugadorService,
+    obtenerJugadoresLibresService,
+    vincularJugadorService
 } from '../services/jugadoresService'
+import {actualizarPerfilService} from '../services/usuarioService'
 
 const router = useRouter()
 const activeTab = ref('equipo')
+<<<<<<< HEAD
 const userName = ref('Entrenador')
 const equipos = ref([])
 const equipoActual = ref(null)
@@ -367,8 +669,29 @@ const profile = ref({
     email: '',
     phone: '',
     experience: '0-5 años'
+=======
+const jugadoresLibres = ref([])
+const usuarioData = JSON.parse(localStorage.getItem('usuario') || '{}')
+const userName = ref(usuarioData.nombre || 'Entrenador')
+const showEditarEquipoModal = ref(false)
+const hasTeam = ref(false)
+const equipoActual = ref(null)
+const estadisticas = ref(null)
+const guardandoPerfil = ref(false)
+const players = ref([])
+const showPlayerModal = ref(false)
+const selectedPlayer = ref(null)
+const perfilForm = ref({
+    nombre: usuarioData.nombre || '',
+    apellido: usuarioData.apellido || '',
+    correo: usuarioData.correo || ''
+>>>>>>> e3c36add34bb575a0def27e2705b9fc51b08c690
 })
+const titulares = computed(() => players.value.filter(p => p.rol_equipo === 'Titular'))
+const suplentes = computed(() => players.value.filter(p => p.rol_equipo !== 'Titular'))
+const titularesCount = computed(() => titulares.value.length)
 
+<<<<<<< HEAD
 // Computed para promedio de estatura
 const promedioEstatura = computed(() => {
     const jugadoresConEstatura = players.value.filter(p => p.estatura)
@@ -387,6 +710,9 @@ const tasaVictorias = computed(() => {
 // MÉTODOS PARA EQUIPOS
 // =====================================================
 const obtenerTodosLosEquipos = async () => {
+=======
+const obtenerMiEquipo = async () => {
+>>>>>>> e3c36add34bb575a0def27e2705b9fc51b08c690
     try {
         const idEntrenador = localStorage.getItem('usuario_id')
         // ✅ USAR EL SERVICIO IMPORTADO en lugar de api.get directamente
@@ -424,7 +750,27 @@ const cargarDatosEquipoActual = async () => {
         ])
     }
 }
-
+const guardarPerfil = async () => {
+    guardandoPerfil.value = true;
+    try {
+        const idUsuario = localStorage.getItem('usuario_id');
+        
+        const respuesta = await actualizarPerfilService(idUsuario, perfilForm.value);
+        
+        const nuevoUsuarioLocal = { ...usuarioData, ...respuesta.usuario };
+        
+        localStorage.setItem('usuario', JSON.stringify(nuevoUsuarioLocal));
+        
+        userName.value = respuesta.usuario.nombre;
+        
+        alert('Perfil actualizado exitosamente.');
+    } catch (error) {
+        
+        alert(error.response?.data?.error || 'Error al actualizar el perfil.');
+    } finally {
+        guardandoPerfil.value = false;
+    }
+}
 const cargarEstadisticas = async () => {
     try {
         const response = await api.get(`/equipos/${equipoActual.value.id_equipo}/estadisticas`)
@@ -434,6 +780,7 @@ const cargarEstadisticas = async () => {
     }
 }
 
+<<<<<<< HEAD
 const openCreateTeamModal = () => {
     console.log('🟢 Abriendo modal crear equipo')
     equipoAEditar.value = null
@@ -488,16 +835,83 @@ const toggleTeamStatus = async (equipo) => {
         alert(mensaje)
     } catch (error) {
         console.error('Error al cambiar estado del equipo:', error)
+=======
+const toggleTeamStatus = async () => {
+    try {
+        const endpoint = equipoActual.value.activo ? 'deshabilitar' : 'habilitar'
+        await api.patch(`/equipos/${equipoActual.value.id_equipo}/${endpoint}`)
+        equipoActual.value.activo = !equipoActual.value.activo
+        alert(equipoActual.value.activo ? 'Equipo habilitado correctamente' : 'Equipo deshabilitado correctamente')
+    } catch (error) {
+>>>>>>> e3c36add34bb575a0def27e2705b9fc51b08c690
         alert('Error al cambiar el estado del equipo')
     }
 }
 
+<<<<<<< HEAD
 // =====================================================
 // MÉTODOS PARA JUGADORES
 // =====================================================
 
 const openAddPlayerModal = () => {
+=======
+const abandonarEquipoDirigido = async () => {
+    if (!equipoActual.value) return;
+    const confirmacion = confirm(`¿Estás TOTALMENTE seguro de que deseas abandonar el equipo "${equipoActual.value.nombre_oficial}"?`);
+    
+    if (confirmacion) {
+        try {
+            await api.post(`/equipos/${equipoActual.value.id_equipo}/abandonar`);
+            alert('Has abandonado el equipo exitosamente.');
+            equipoActual.value = null;
+            hasTeam.value = false;
+            players.value = [];
+            estadisticas.value = null;
+        } catch (error) {
+            alert(error.response?.data?.error || 'Ocurrió un error al intentar abandonar el equipo.');
+        }
+    }
+}
+
+const openEditTeamModal = () => {
+    showEditarEquipoModal.value = true
+}
+const closeEditTeamModal = () => {
+    showEditarEquipoModal.value = false
+}
+const saveTeam = async (updatedData) => {
+    try {
+        await actualizarEquipoService(equipoActual.value.id_equipo, updatedData)
+        equipoActual.value = { ...equipoActual.value, ...updatedData }
+        alert('Datos del equipo actualizados correctamente')
+        closeEditTeamModal()
+    } catch (error) {
+        alert(error.response?.data?.error || 'Error al actualizar los datos del equipo')
+    }
+}
+const cargarJugadores = async () => {
+    if (equipoActual.value) {
+        try {
+            const data = await obtenerJugadoresPorEquipoService(equipoActual.value.id_equipo)
+            players.value = data
+        } catch (error) {
+            console.error('Error al cargar jugadores:', error)
+        }
+    }
+}
+
+const cargarJugadoresLibres = async () => {
+    try {
+        jugadoresLibres.value = await obtenerJugadoresLibresService();
+    } catch (error) {
+        console.error('Error cargando agentes libres:', error)
+    }
+}
+
+const openAddPlayerModal = async () => {
+>>>>>>> e3c36add34bb575a0def27e2705b9fc51b08c690
     selectedPlayer.value = null
+    await cargarJugadoresLibres();
     showPlayerModal.value = true
 }
 
@@ -511,29 +925,38 @@ const closePlayerModal = () => {
     selectedPlayer.value = null
 }
 
-const savePlayer = async (playerData) => {
+const savePlayer = async (payload) => {
     try {
-        if (selectedPlayer.value) {
-            // Actualizar jugador existente
-            await actualizarJugadorService(selectedPlayer.value.id_jugador, playerData)
-        } else {
-            // Crear nuevo jugador
-            await crearJugadorService({
-                ...playerData,
+        if (payload.isEditing) {
+            await actualizarJugadorService(payload.data.id_jugador, {
+                ...payload.data,
+                id_equipo: equipoActual.value.id_equipo 
+            })
+            alert('Jugador actualizado correctamente')
+        } else if (payload.isAgenteLibre) {
+            await vincularJugadorService(payload.data.id_jugador, {
+                numero_camiseta: payload.data.numero_camiseta,
+                es_capitan: payload.data.es_capitan,
                 id_equipo: equipoActual.value.id_equipo
             })
+            alert('Agente libre fichado correctamente')
+        } else {
+            await crearJugadorService({
+                ...payload.data,
+                id_equipo: equipoActual.value.id_equipo
+            })
+            alert('Nuevo jugador registrado correctamente')
         }
         await cargarJugadores()
         await cargarEstadisticas()
         closePlayerModal()
     } catch (error) {
-        console.error('Error al guardar jugador:', error)
-        alert('Error al guardar el jugador')
+        alert(error.response?.data?.error || 'Error al procesar el jugador')
     }
 }
 
 const confirmDeletePlayer = (player) => {
-    if (confirm(`¿Estás seguro de eliminar a ${player.nombre} ${player.apellido} del equipo?`)) {
+    if (confirm(`¿Estás seguro de dar de baja a ${player.nombre} ${player.apellido}?`)) {
         eliminarJugador(player)
     }
 }
@@ -541,23 +964,20 @@ const confirmDeletePlayer = (player) => {
 const eliminarJugador = async (player) => {
     try {
         await eliminarJugadorService(player.id_jugador, equipoActual.value.id_equipo)
+        alert('Jugador dado de baja exitosamente')
         await cargarJugadores()
         await cargarEstadisticas()
     } catch (error) {
-        console.error('Error al eliminar jugador:', error)
-        alert('Error al eliminar el jugador')
+        alert('Error al dar de baja al jugador')
     }
 }
 
-const cargarJugadores = async () => {
-    if (equipoActual.value) {
-        try {
-            const data = await obtenerJugadoresPorEquipoService(equipoActual.value.id_equipo)
-            players.value = data
-        } catch (error) {
-            console.error('Error al cargar jugadores:', error)
-        }
+const cambiarRol = async (player, nuevoRol) => {
+    if (nuevoRol === 'Titular' && titularesCount.value >= 5) {
+        alert('REGLA BALONCESTO: Tu equipo ya tiene 5 jugadores titulares asignados.');
+        return;
     }
+<<<<<<< HEAD
 }
 
 const toggleJugadoresSection = () => {
@@ -567,9 +987,27 @@ const toggleJugadoresSection = () => {
 // =====================================================
 // MÉTODOS DE NAVEGACIÓN
 // =====================================================
+=======
+    try {
+        await actualizarJugadorService(player.id_jugador, {
+            ...player,
+            fecha_nacimiento: player.fecha_nacimiento ? player.fecha_nacimiento.split('T')[0] : null,
+            id_equipo: equipoActual.value.id_equipo,
+            rol_equipo: nuevoRol 
+        });
+        await cargarJugadores();
+    } catch (error) {
+        alert(error.response?.data?.error || 'Ocurrió un error al intentar cambiar la alineación.');
+    }
+}
+>>>>>>> e3c36add34bb575a0def27e2705b9fc51b08c690
 
 const navigateTo = (tab) => {
     activeTab.value = tab
+}
+
+const irAEquiposLibres = () => {
+    router.push('/equipos-libres');
 }
 
 const logout = () => {
@@ -578,10 +1016,13 @@ const logout = () => {
     router.push('/login')
 }
 
+<<<<<<< HEAD
 
 const cargandoInicial = ref(true)
 
 // =====================================================
+=======
+>>>>>>> e3c36add34bb575a0def27e2705b9fc51b08c690
 onMounted(async () => {
     try {
         await obtenerTodosLosEquipos()

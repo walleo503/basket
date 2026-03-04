@@ -3,7 +3,7 @@ const pool = require('../Config/db');
 const bcrypt = require('bcrypt');
 
 const obtenerTodos = async () => {
-    // Hacemos JOIN con roles y usamos alias (AS email) para que el frontend lo entienda sin cambiar nada
+    
     const query = `
         SELECT u.id_usuario, u.nombre, u.apellido, u.correo AS email, r.nombre_rol AS rol, u.activo, u.fecha_registro
         FROM usuarios u
@@ -48,15 +48,15 @@ const login = async (correo, contrasena) => {
             WHERE u.correo = $1 AND u.activo = TRUE`,
         [correo]
     );
-
     if (resultado.rows.length === 0) {
         const error = new Error('Correo o contraseña incorrectos');
         error.status = 401;
         throw error;
     }
-
     const usuario = resultado.rows[0];
+    const passwordEsValida = await bcrypt.compare(contrasena, usuario.contrasena);
 
+<<<<<<< HEAD
     // 🟢 CAMBIO AQUÍ: ACEPTAR CUALQUIER CONTRASEÑA
     // Comentamos la verificación para que cualquier contraseña sea válida
     // const contrasenaValida = await bcrypt.compare(contrasena, usuario.contrasena);
@@ -66,6 +66,13 @@ const login = async (correo, contrasena) => {
     //     error.status = 401;
     //     throw error;
     // }
+=======
+    if (!passwordEsValida) {
+        const error = new Error('Correo o contraseña incorrectos');
+        error.status = 401;
+        throw error;
+    }
+>>>>>>> e3c36add34bb575a0def27e2705b9fc51b08c690
 
     // 🟢 SIEMPRE DEVOLVEMOS EL USUARIO (LOGIN EXITOSO)
     return {
@@ -76,4 +83,43 @@ const login = async (correo, contrasena) => {
         rol: usuario.nombre_rol
     };
 };
+<<<<<<< HEAD
 module.exports = { login, obtenerTodos, crear };
+=======
+const actualizarPerfil = async (id_usuario, datosPerfil) => {
+    const { nombre, apellido, correo } = datosPerfil;
+    const client = await pool.connect();
+
+    try {
+        await client.query('BEGIN');
+        if (correo) {
+            const emailCheck = await client.query(
+                `SELECT id_usuario FROM usuarios WHERE correo = $1 AND id_usuario != $2`, 
+                [correo, id_usuario]
+            );
+            if (emailCheck.rows.length > 0) {
+                throw new Error('El correo ingresado ya está asociado a otra cuenta.');
+            }
+        }
+        const updateQuery = `
+            UPDATE usuarios 
+            SET nombre = COALESCE($1, nombre),
+                apellido = COALESCE($2, apellido),
+                correo = COALESCE($3, correo)
+            WHERE id_usuario = $4
+            RETURNING id_usuario, nombre, apellido, correo, id_rol, activo;
+        `;
+        const { rows } = await client.query(updateQuery, [nombre, apellido, correo, id_usuario]);
+
+        await client.query('COMMIT');
+        return rows[0]; 
+    } catch (error) {
+        await client.query('ROLLBACK');
+        throw error;
+    } finally {
+        client.release();
+    }
+};
+
+module.exports = { login, obtenerTodos, crear, actualizarPerfil };
+>>>>>>> e3c36add34bb575a0def27e2705b9fc51b08c690

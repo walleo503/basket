@@ -15,3 +15,7 @@ export const crearUsuarioService = async (datosUsuario) => {
     const response = await api.post('/usuarios', datosUsuario)
     return response.data
 }
+export const actualizarPerfilService = async (idUsuario, datosUsuario) => {
+    const response = await api.put(`/usuarios/${idUsuario}/perfil`, datosUsuario)
+    return response.data
+}

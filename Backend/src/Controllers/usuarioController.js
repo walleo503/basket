@@ -71,6 +71,52 @@ const obtenerUsuarios = async (req, res, next) => {
     }
 };
 
+<<<<<<< HEAD
 
+=======
+const crearUsuario = async (req, res, next) => {
+    try {
+        const { nombre, email, password, rol } = req.body;
+        
+        if (!nombre || !email || !password || !rol) {
+            return res.status(400).json({ error: 'Todos los campos son obligatorios' });
+        }
+        
+        const rolesValidos = ['administrador', 'entrenador', 'arbitro'];
+        if (!rolesValidos.includes(rol)) {
+            return res.status(400).json({ error: 'El rol seleccionado no es válido' });
+        }
+        const nuevoUsuario = await authService.crear(req.body);
+        
+        res.status(201).json({
+            mensaje: 'Cuenta creada exitosamente',
+            usuario: nuevoUsuario
+        });
+    } catch (error) {
+        if (error.code === '23505') {
+            return res.status(400).json({ error: 'Este correo electrónico ya está en uso' });
+        }
+        next(error);
+    }
+};
+const actualizarMiPerfil = async (req, res, next) => {
+    try {
+        const { id } = req.params; 
+        const datosBody = req.body;
+>>>>>>> e3c36add34bb575a0def27e2705b9fc51b08c690
 
-module.exports = { login, obtenerUsuarios, crearUsuario };
+        const usuarioActualizado = await authService.actualizarPerfil(id, datosBody);
+        
+        res.status(200).json({
+            mensaje: 'Perfil actualizado exitosamente',
+            usuario: usuarioActualizado
+        });
+    } catch (error) {
+        // Atrapamos el error del correo duplicado
+        if (error.message.includes('asociado a otra cuenta')) {
+            return res.status(400).json({ error: error.message });
+        }
+        next(error);
+    }
+};
+module.exports = { login, obtenerUsuarios, crearUsuario, actualizarMiPerfil };

@@ -39,11 +39,21 @@ const actualizarEquipo = async (req, res, next) => {
     try {
         const { id } = req.params;
         const equipoActualizado = await equiposService.actualizar(id, req.body);
+<<<<<<< HEAD
+=======
+        
+        if (!equipoActualizado) {
+            return res.status(404).json({ mensaje: 'Equipo no encontrado' });
+        }
+>>>>>>> e3c36add34bb575a0def27e2705b9fc51b08c690
         res.status(200).json({
             mensaje: 'Equipo actualizado exitosamente',
             equipo: equipoActualizado
         });
     } catch (error) {
+        if(error.message.includes('DIRECCION_REPETIDA')) {
+            return res.status(400).json({ error: error.message.replace('DIRECCION_REPETIDA: ', '') });
+        }
         next(error);
     }
 };
@@ -51,7 +61,12 @@ const actualizarEquipo = async (req, res, next) => {
 const deshabilitarEquipo = async (req, res, next) => {
     try {
         const { id } = req.params;
+<<<<<<< HEAD
         const equipo = await equiposService.cambiarEstado(id, false);
+=======
+        const equipoDeshabilitado = await equiposService.cambiarEstado(id, false);
+        
+>>>>>>> e3c36add34bb575a0def27e2705b9fc51b08c690
         res.status(200).json({
             mensaje: 'Equipo deshabilitado correctamente',
             equipo
@@ -64,7 +79,12 @@ const deshabilitarEquipo = async (req, res, next) => {
 const habilitarEquipo = async (req, res, next) => {
     try {
         const { id } = req.params;
+<<<<<<< HEAD
         const equipo = await equiposService.cambiarEstado(id, true);
+=======
+        const equipoHabilitado = await equiposService.cambiarEstado(id, true);
+        
+>>>>>>> e3c36add34bb575a0def27e2705b9fc51b08c690
         res.status(200).json({
             mensaje: 'Equipo habilitado correctamente',
             equipo
@@ -108,7 +128,47 @@ const obtenerEstadisticasEquipo = async (req, res, next) => {
         next(error);
     }
 };
+const obtenerEquiposLibres = async (req, res, next) => {
+    try {
+        const equipos = await equiposService.obtenerEquiposLibres();
+        res.status(200).json(equipos);
+    } catch (error) {
+        next(error);
+    }
+};
 
+const abandonarEquipo = async (req, res, next) => {
+    try {
+        const { id } = req.params;
+        await equiposService.abandonarEquipo(id);
+        res.status(200).json({ mensaje: 'Has abandonado el equipo exitosamente' });
+    } catch (error) {
+        next(error);
+    }
+};
+
+const unirseEquipo = async (req, res, next) => {
+    try {
+        const { id } = req.params; 
+        const { id_entrenador } = req.body;
+        
+        if (!id_entrenador) {
+            return res.status(400).json({ error: 'ID del entrenador es requerido' });
+        }
+        const equipoExistente = await equiposService.obtenerPorEntrenador(id_entrenador);
+        if (equipoExistente) {
+            return res.status(400).json({ error: 'Ya diriges un equipo actualmente. Debes abandonarlo primero.' });
+        }
+
+        const equipoAsignado = await equiposService.unirseEquipo(id, id_entrenador);
+        res.status(200).json({ 
+            mensaje: 'Te has unido al equipo exitosamente',
+            equipo: equipoAsignado 
+        });
+    } catch (error) {
+        next(error);
+    }
+};
 module.exports = {
     obtenerEquipos,
     obtenerEquipoPorId,
@@ -117,6 +177,13 @@ module.exports = {
     deshabilitarEquipo,
     habilitarEquipo,
     obtenerEquipoDeEntrenador,
+<<<<<<< HEAD
     obtenerEquiposPorEntrenador,  // ✅ EXPORTAR LA NUEVA FUNCIÓN
     obtenerEstadisticasEquipo
+=======
+    obtenerEstadisticasEquipo,
+    obtenerEquiposLibres,
+    abandonarEquipo,
+    unirseEquipo
+>>>>>>> e3c36add34bb575a0def27e2705b9fc51b08c690
 };
