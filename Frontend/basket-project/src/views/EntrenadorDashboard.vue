@@ -85,7 +85,7 @@
                                         </p>
                                     </div>
                                     <div class="flex space-x-3">
-                                        <button @click="openEditTeamModal(equipoActual)" 
+                                        <button @click="navigateTo('jugadores')" 
                                             class="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors shadow-sm flex items-center">
                                             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
@@ -452,21 +452,19 @@ const closeTeamModal = () => {
     equipoAEditar.value = null
 }
 
+// ✅ Asegúrate que recibe teamData como parámetro
 const saveTeam = async (teamData) => {
     try {
         const idEntrenador = localStorage.getItem('usuario_id')
         
         if (equipoAEditar.value) {
-            // Actualizar equipo existente
             await actualizarEquipoService(equipoAEditar.value.id_equipo, teamData)
         } else {
-            // Crear nuevo equipo
             await crearEquipoService({
                 ...teamData,
                 id_entrenador: idEntrenador
             })
         }
-        
         await obtenerTodosLosEquipos()
         closeTeamModal()
     } catch (error) {
@@ -580,16 +578,22 @@ const logout = () => {
     router.push('/login')
 }
 
-// =====================================================
-// LIFECYCLE
+
+const cargandoInicial = ref(true)
+
 // =====================================================
 onMounted(async () => {
-    await obtenerTodosLosEquipos()
+    try {
+        await obtenerTodosLosEquipos()
+    } catch (error) {
+        console.error('❌ Error en onMounted:', error)
+    } finally {
+        cargandoInicial.value = false
+    }
 })
 
-// Watcher para cuando cambia el equipo actual
 watch(equipoActual, async (nuevoEquipo) => {
-    if (nuevoEquipo) {
+    if (nuevoEquipo && !cargandoInicial.value) {
         await cargarDatosEquipoActual()
     }
 })
