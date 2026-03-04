@@ -24,13 +24,6 @@ export const verificarSancionService = async (idJugador) => {
     return response.data
 }
 
-<<<<<<< HEAD
-// =====================================================
-// SERVICIOS PARA JUGADORES POR EQUIPO
-// =====================================================
-=======
->>>>>>> e3c36add34bb575a0def27e2705b9fc51b08c690
-
 export const obtenerJugadoresPorEquipoService = async (idEquipo) => {
     const response = await api.get(`/jugadores/equipo/${idEquipo}`)
     return response.data

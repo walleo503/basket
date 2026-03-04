@@ -1,80 +1,53 @@
-//ruta de archivo : Backend/src/Services/usuarioService.js
 const pool = require('../Config/db');
 const bcrypt = require('bcrypt');
 
 const obtenerTodos = async () => {
-    
-    const query = `
-        SELECT u.id_usuario, u.nombre, u.apellido, u.correo AS email, r.nombre_rol AS rol, u.activo, u.fecha_registro
+    const { rows } = await pool.query(`
+        SELECT u.id_usuario, u.nombre, u.apellido, u.correo AS email,
+               r.nombre_rol AS rol, u.activo, u.fecha_registro
         FROM usuarios u
         JOIN roles r ON u.id_rol = r.id_rol
         ORDER BY u.fecha_registro DESC;
-    `;
-    const { rows } = await pool.query(query);
+    `);
     return rows;
 };
 
 const crear = async (datosUsuario) => {
     const { nombre, email, password, rol } = datosUsuario;
-    const partesNombre = nombre.trim().split(' ');
-    const primerNombre = partesNombre[0];
-    const apellidos = partesNombre.slice(1).join(' ') || '.'; 
-
-    const mapaRoles = {
-        'administrador': 1,
-        'entrenador': 2,
-        'arbitro': 3
-    };
+    const partes = nombre.trim().split(' ');
+    const primerNombre = partes[0];
+    const apellidos = partes.slice(1).join(' ') || '.';
+    const mapaRoles = { administrador: 1, entrenador: 2, arbitro: 3 };
     const id_rol = mapaRoles[rol];
-    const saltRounds = 10;
-    const passwordHashed = await bcrypt.hash(password, saltRounds);
-
-    const query = `
+    const passwordHashed = await bcrypt.hash(password, 10);
+    const { rows } = await pool.query(`
         INSERT INTO usuarios (nombre, apellido, correo, contrasena, id_rol)
         VALUES ($1, $2, $3, $4, $5)
         RETURNING id_usuario, nombre, apellido, correo AS email;
-    `;
-    const values = [primerNombre, apellidos, email, passwordHashed, id_rol];
-    
-    const { rows } = await pool.query(query, values);
+    `, [primerNombre, apellidos, email, passwordHashed, id_rol]);
     return rows[0];
 };
 
 const login = async (correo, contrasena) => {
-    const resultado = await pool.query(
-        `SELECT u.id_usuario, u.nombre, u.apellido, u.correo, u.contrasena, r.nombre_rol
-            FROM usuarios u
-            JOIN roles r ON u.id_rol = r.id_rol
-            WHERE u.correo = $1 AND u.activo = TRUE`,
-        [correo]
-    );
-    if (resultado.rows.length === 0) {
+    const { rows } = await pool.query(`
+        SELECT u.id_usuario, u.nombre, u.apellido, u.correo, u.contrasena, r.nombre_rol
+        FROM usuarios u
+        JOIN roles r ON u.id_rol = r.id_rol
+        WHERE u.correo = $1 AND u.activo = TRUE
+    `, [correo]);
+
+    if (rows.length === 0) {
         const error = new Error('Correo o contraseña incorrectos');
         error.status = 401;
         throw error;
     }
-    const usuario = resultado.rows[0];
-    const passwordEsValida = await bcrypt.compare(contrasena, usuario.contrasena);
-
-<<<<<<< HEAD
-    // 🟢 CAMBIO AQUÍ: ACEPTAR CUALQUIER CONTRASEÑA
-    // Comentamos la verificación para que cualquier contraseña sea válida
-    // const contrasenaValida = await bcrypt.compare(contrasena, usuario.contrasena);
-    
-    // if (!contrasenaValida) {
-    //     const error = new Error('Correo o contraseña incorrectos');
-    //     error.status = 401;
-    //     throw error;
-    // }
-=======
-    if (!passwordEsValida) {
+    const usuario = rows[0];
+    const passwordValida = await bcrypt.compare(contrasena, usuario.contrasena);
+    if (!passwordValida) {
         const error = new Error('Correo o contraseña incorrectos');
         error.status = 401;
         throw error;
     }
->>>>>>> e3c36add34bb575a0def27e2705b9fc51b08c690
-
-    // 🟢 SIEMPRE DEVOLVEMOS EL USUARIO (LOGIN EXITOSO)
     return {
         id_usuario: usuario.id_usuario,
         nombre: usuario.nombre,
@@ -83,36 +56,29 @@ const login = async (correo, contrasena) => {
         rol: usuario.nombre_rol
     };
 };
-<<<<<<< HEAD
-module.exports = { login, obtenerTodos, crear };
-=======
+
 const actualizarPerfil = async (id_usuario, datosPerfil) => {
     const { nombre, apellido, correo } = datosPerfil;
     const client = await pool.connect();
-
     try {
         await client.query('BEGIN');
         if (correo) {
-            const emailCheck = await client.query(
-                `SELECT id_usuario FROM usuarios WHERE correo = $1 AND id_usuario != $2`, 
+            const { rows } = await client.query(
+                `SELECT id_usuario FROM usuarios WHERE correo = $1 AND id_usuario != $2`,
                 [correo, id_usuario]
             );
-            if (emailCheck.rows.length > 0) {
-                throw new Error('El correo ingresado ya está asociado a otra cuenta.');
-            }
+            if (rows.length > 0) throw new Error('El correo ya está asociado a otra cuenta.');
         }
-        const updateQuery = `
-            UPDATE usuarios 
+        const { rows } = await client.query(`
+            UPDATE usuarios
             SET nombre = COALESCE($1, nombre),
                 apellido = COALESCE($2, apellido),
                 correo = COALESCE($3, correo)
             WHERE id_usuario = $4
             RETURNING id_usuario, nombre, apellido, correo, id_rol, activo;
-        `;
-        const { rows } = await client.query(updateQuery, [nombre, apellido, correo, id_usuario]);
-
+        `, [nombre, apellido, correo, id_usuario]);
         await client.query('COMMIT');
-        return rows[0]; 
+        return rows[0];
     } catch (error) {
         await client.query('ROLLBACK');
         throw error;
@@ -122,4 +88,3 @@ const actualizarPerfil = async (id_usuario, datosPerfil) => {
 };
 
 module.exports = { login, obtenerTodos, crear, actualizarPerfil };
->>>>>>> e3c36add34bb575a0def27e2705b9fc51b08c690
